@@ -352,9 +352,6 @@ Developed as a professional demonstration project showcasing:
 - RDFLib community
 - Protégé ontology editor
 
-## 📞 Contact
-
-For questions or opportunities: [Your Contact Information]
 
 ---
 
