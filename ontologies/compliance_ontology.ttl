@@ -1,0 +1,516 @@
+@prefix : <http://enterprise.org/ontology/compliance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@base <http://enterprise.org/ontology/compliance> .
+
+<http://enterprise.org/ontology/compliance> rdf:type owl:Ontology ;
+    dct:title "Enterprise Compliance Ontology"@en ;
+    dct:description "Ontology for modeling data compliance, governance, consent management, and regulatory frameworks (GDPR, CCPA, etc.)"@en ;
+    dct:created "2025-10-04"^^xsd:date ;
+    dct:creator "Enterprise Data Team" ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "Supports privacy by design, consent tracking, and automated compliance monitoring"@en .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://enterprise.org/ontology/compliance#Consent
+:Consent rdf:type owl:Class ;
+    rdfs:label "Consent"@en ;
+    rdfs:comment "A record of user consent for data processing activities"@en .
+
+###  http://enterprise.org/ontology/compliance#ConsentPurpose
+:ConsentPurpose rdf:type owl:Class ;
+    rdfs:label "Consent Purpose"@en ;
+    rdfs:comment "The specific purpose for which consent is granted"@en .
+
+###  http://enterprise.org/ontology/compliance#DataSubject
+:DataSubject rdf:type owl:Class ;
+    rdfs:label "Data Subject"@en ;
+    rdfs:comment "An individual whose personal data is being processed"@en ;
+    rdfs:subClassOf prov:Agent .
+
+###  http://enterprise.org/ontology/compliance#DataController
+:DataController rdf:type owl:Class ;
+    rdfs:label "Data Controller"@en ;
+    rdfs:comment "Entity that determines purposes and means of processing personal data"@en ;
+    rdfs:subClassOf prov:Agent .
+
+###  http://enterprise.org/ontology/compliance#DataProcessor
+:DataProcessor rdf:type owl:Class ;
+    rdfs:label "Data Processor"@en ;
+    rdfs:comment "Entity that processes personal data on behalf of the controller"@en ;
+    rdfs:subClassOf prov:Agent .
+
+###  http://enterprise.org/ontology/compliance#ProcessingActivity
+:ProcessingActivity rdf:type owl:Class ;
+    rdfs:label "Processing Activity"@en ;
+    rdfs:comment "A data processing activity that must be documented and governed"@en ;
+    rdfs:subClassOf prov:Activity .
+
+###  http://enterprise.org/ontology/compliance#LegalBasis
+:LegalBasis rdf:type owl:Class ;
+    rdfs:label "Legal Basis"@en ;
+    rdfs:comment "The legal justification for processing personal data (GDPR Article 6)"@en .
+
+###  http://enterprise.org/ontology/compliance#DataCategory
+:DataCategory rdf:type owl:Class ;
+    rdfs:label "Data Category"@en ;
+    rdfs:comment "Category or type of personal data being processed"@en .
+
+###  http://enterprise.org/ontology/compliance#PersonalData
+:PersonalData rdf:type owl:Class ;
+    rdfs:label "Personal Data"@en ;
+    rdfs:comment "Any information relating to an identified or identifiable person"@en .
+
+###  http://enterprise.org/ontology/compliance#SensitiveData
+:SensitiveData rdf:type owl:Class ;
+    rdfs:label "Sensitive Data"@en ;
+    rdfs:comment "Special categories of personal data requiring additional protection (GDPR Article 9)"@en ;
+    rdfs:subClassOf :PersonalData .
+
+###  http://enterprise.org/ontology/compliance#DataSubjectRight
+:DataSubjectRight rdf:type owl:Class ;
+    rdfs:label "Data Subject Right"@en ;
+    rdfs:comment "Rights granted to data subjects under data protection laws"@en .
+
+###  http://enterprise.org/ontology/compliance#RightExerciseRequest
+:RightExerciseRequest rdf:type owl:Class ;
+    rdfs:label "Right Exercise Request"@en ;
+    rdfs:comment "A request by a data subject to exercise their rights"@en .
+
+###  http://enterprise.org/ontology/compliance#DataBreachIncident
+:DataBreachIncident rdf:type owl:Class ;
+    rdfs:label "Data Breach Incident"@en ;
+    rdfs:comment "A security incident involving personal data breach"@en .
+
+###  http://enterprise.org/ontology/compliance#DataRetentionPolicy
+:DataRetentionPolicy rdf:type owl:Class ;
+    rdfs:label "Data Retention Policy"@en ;
+    rdfs:comment "Policy governing how long data is retained"@en .
+
+###  http://enterprise.org/ontology/compliance#PrivacyNotice
+:PrivacyNotice rdf:type owl:Class ;
+    rdfs:label "Privacy Notice"@en ;
+    rdfs:comment "A notice informing data subjects about data processing"@en .
+
+###  http://enterprise.org/ontology/compliance#ComplianceFramework
+:ComplianceFramework rdf:type owl:Class ;
+    rdfs:label "Compliance Framework"@en ;
+    rdfs:comment "A regulatory framework or standard for compliance"@en .
+
+###  http://enterprise.org/ontology/compliance#AuditLog
+:AuditLog rdf:type owl:Class ;
+    rdfs:label "Audit Log"@en ;
+    rdfs:comment "A record of actions taken on personal data for compliance monitoring"@en ;
+    rdfs:subClassOf prov:Activity .
+
+###  http://enterprise.org/ontology/compliance#DataTransfer
+:DataTransfer rdf:type owl:Class ;
+    rdfs:label "Data Transfer"@en ;
+    rdfs:comment "Transfer of personal data across borders or to third parties"@en .
+
+###  http://enterprise.org/ontology/compliance#DataProtectionImpactAssessment
+:DataProtectionImpactAssessment rdf:type owl:Class ;
+    rdfs:label "Data Protection Impact Assessment"@en ;
+    rdfs:comment "Assessment of privacy risks for high-risk processing activities (DPIA)"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://enterprise.org/ontology/compliance#hasConsent
+:hasConsent rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataSubject ;
+    rdfs:range :Consent ;
+    rdfs:label "has consent"@en .
+
+###  http://enterprise.org/ontology/compliance#consentFor
+:consentFor rdf:type owl:ObjectProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range :ConsentPurpose ;
+    rdfs:label "consent for"@en .
+
+###  http://enterprise.org/ontology/compliance#hasLegalBasis
+:hasLegalBasis rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :LegalBasis ;
+    rdfs:label "has legal basis"@en .
+
+###  http://enterprise.org/ontology/compliance#processesDataCategory
+:processesDataCategory rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataCategory ;
+    rdfs:label "processes data category"@en .
+
+###  http://enterprise.org/ontology/compliance#performedBy
+:performedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataProcessor ;
+    rdfs:label "performed by"@en .
+
+###  http://enterprise.org/ontology/compliance#controlledBy
+:controlledBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataController ;
+    rdfs:label "controlled by"@en .
+
+###  http://enterprise.org/ontology/compliance#concernsDataSubject
+:concernsDataSubject rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataSubject ;
+    rdfs:label "concerns data subject"@en .
+
+###  http://enterprise.org/ontology/compliance#hasRetentionPolicy
+:hasRetentionPolicy rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataCategory ;
+    rdfs:range :DataRetentionPolicy ;
+    rdfs:label "has retention policy"@en .
+
+###  http://enterprise.org/ontology/compliance#hasPrivacyNotice
+:hasPrivacyNotice rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :PrivacyNotice ;
+    rdfs:label "has privacy notice"@en .
+
+###  http://enterprise.org/ontology/compliance#subjectToFramework
+:subjectToFramework rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :ComplianceFramework ;
+    rdfs:label "subject to framework"@en .
+
+###  http://enterprise.org/ontology/compliance#hasAuditLog
+:hasAuditLog rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :AuditLog ;
+    rdfs:label "has audit log"@en .
+
+###  http://enterprise.org/ontology/compliance#requestsRight
+:requestsRight rdf:type owl:ObjectProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range :DataSubjectRight ;
+    rdfs:label "requests right"@en .
+
+###  http://enterprise.org/ontology/compliance#submittedBy
+:submittedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range :DataSubject ;
+    rdfs:label "submitted by"@en .
+
+###  http://enterprise.org/ontology/compliance#hasDPIA
+:hasDPIA rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataProtectionImpactAssessment ;
+    rdfs:label "has DPIA"@en .
+
+###  http://enterprise.org/ontology/compliance#involvesDataTransfer
+:involvesDataTransfer rdf:type owl:ObjectProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range :DataTransfer ;
+    rdfs:label "involves data transfer"@en .
+
+###  http://enterprise.org/ontology/compliance#relatedToIncident
+:relatedToIncident rdf:type owl:ObjectProperty ;
+    rdfs:domain :AuditLog ;
+    rdfs:range :DataBreachIncident ;
+    rdfs:label "related to incident"@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://enterprise.org/ontology/compliance#consentId
+:consentId rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:string ;
+    rdfs:label "consent ID"@en .
+
+###  http://enterprise.org/ontology/compliance#consentStatus
+:consentStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:string ;
+    rdfs:label "consent status"@en ;
+    rdfs:comment "Values: ACTIVE, WITHDRAWN, EXPIRED, PENDING"@en .
+
+###  http://enterprise.org/ontology/compliance#consentGivenDate
+:consentGivenDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "consent given date"@en .
+
+###  http://enterprise.org/ontology/compliance#consentWithdrawnDate
+:consentWithdrawnDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "consent withdrawn date"@en .
+
+###  http://enterprise.org/ontology/compliance#consentExpiryDate
+:consentExpiryDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "consent expiry date"@en .
+
+###  http://enterprise.org/ontology/compliance#consentMethod
+:consentMethod rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Consent ;
+    rdfs:range xsd:string ;
+    rdfs:label "consent method"@en ;
+    rdfs:comment "How consent was obtained: OPT_IN, OPT_OUT, IMPLICIT, EXPLICIT"@en .
+
+###  http://enterprise.org/ontology/compliance#purposeName
+:purposeName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ConsentPurpose ;
+    rdfs:range xsd:string ;
+    rdfs:label "purpose name"@en .
+
+###  http://enterprise.org/ontology/compliance#purposeDescription
+:purposeDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ConsentPurpose ;
+    rdfs:range xsd:string ;
+    rdfs:label "purpose description"@en .
+
+###  http://enterprise.org/ontology/compliance#activityName
+:activityName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range xsd:string ;
+    rdfs:label "activity name"@en .
+
+###  http://enterprise.org/ontology/compliance#activityDescription
+:activityDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range xsd:string ;
+    rdfs:label "activity description"@en .
+
+###  http://enterprise.org/ontology/compliance#processingPurpose
+:processingPurpose rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ProcessingActivity ;
+    rdfs:range xsd:string ;
+    rdfs:label "processing purpose"@en .
+
+###  http://enterprise.org/ontology/compliance#legalBasisType
+:legalBasisType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalBasis ;
+    rdfs:range xsd:string ;
+    rdfs:label "legal basis type"@en ;
+    rdfs:comment "GDPR Article 6: CONSENT, CONTRACT, LEGAL_OBLIGATION, VITAL_INTERESTS, PUBLIC_TASK, LEGITIMATE_INTERESTS"@en .
+
+###  http://enterprise.org/ontology/compliance#dataCategoryName
+:dataCategoryName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataCategory ;
+    rdfs:range xsd:string ;
+    rdfs:label "data category name"@en .
+
+###  http://enterprise.org/ontology/compliance#sensitivityLevel
+:sensitivityLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataCategory ;
+    rdfs:range xsd:string ;
+    rdfs:label "sensitivity level"@en ;
+    rdfs:comment "Values: PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED"@en .
+
+###  http://enterprise.org/ontology/compliance#retentionPeriodDays
+:retentionPeriodDays rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataRetentionPolicy ;
+    rdfs:range xsd:integer ;
+    rdfs:label "retention period days"@en .
+
+###  http://enterprise.org/ontology/compliance#retentionJustification
+:retentionJustification rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataRetentionPolicy ;
+    rdfs:range xsd:string ;
+    rdfs:label "retention justification"@en .
+
+###  http://enterprise.org/ontology/compliance#rightName
+:rightName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataSubjectRight ;
+    rdfs:range xsd:string ;
+    rdfs:label "right name"@en ;
+    rdfs:comment "E.g., RIGHT_TO_ACCESS, RIGHT_TO_ERASURE, RIGHT_TO_RECTIFICATION, RIGHT_TO_PORTABILITY"@en .
+
+###  http://enterprise.org/ontology/compliance#requestId
+:requestId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range xsd:string ;
+    rdfs:label "request ID"@en .
+
+###  http://enterprise.org/ontology/compliance#requestDate
+:requestDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "request date"@en .
+
+###  http://enterprise.org/ontology/compliance#requestStatus
+:requestStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range xsd:string ;
+    rdfs:label "request status"@en ;
+    rdfs:comment "Values: PENDING, IN_PROGRESS, COMPLETED, REJECTED"@en .
+
+###  http://enterprise.org/ontology/compliance#responseDeadline
+:responseDeadline rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RightExerciseRequest ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "response deadline"@en ;
+    rdfs:comment "Typically 30 days under GDPR"@en .
+
+###  http://enterprise.org/ontology/compliance#incidentId
+:incidentId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataBreachIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "incident ID"@en .
+
+###  http://enterprise.org/ontology/compliance#incidentDate
+:incidentDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataBreachIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "incident date"@en .
+
+###  http://enterprise.org/ontology/compliance#incidentSeverity
+:incidentSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataBreachIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "incident severity"@en ;
+    rdfs:comment "Values: LOW, MEDIUM, HIGH, CRITICAL"@en .
+
+###  http://enterprise.org/ontology/compliance#affectedRecordsCount
+:affectedRecordsCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataBreachIncident ;
+    rdfs:range xsd:integer ;
+    rdfs:label "affected records count"@en .
+
+###  http://enterprise.org/ontology/compliance#notificationRequired
+:notificationRequired rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataBreachIncident ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "notification required"@en ;
+    rdfs:comment "Whether regulatory notification is required (GDPR 72h rule)"@en .
+
+###  http://enterprise.org/ontology/compliance#frameworkName
+:frameworkName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ComplianceFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "framework name"@en .
+
+###  http://enterprise.org/ontology/compliance#jurisdiction
+:jurisdiction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ComplianceFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "jurisdiction"@en .
+
+###  http://enterprise.org/ontology/compliance#auditTimestamp
+:auditTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditLog ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "audit timestamp"@en .
+
+###  http://enterprise.org/ontology/compliance#auditAction
+:auditAction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "audit action"@en ;
+    rdfs:comment "Type of action: CREATE, READ, UPDATE, DELETE, EXPORT"@en .
+
+###  http://enterprise.org/ontology/compliance#auditUser
+:auditUser rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "audit user"@en .
+
+###  http://enterprise.org/ontology/compliance#transferDestination
+:transferDestination rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransfer ;
+    rdfs:range xsd:string ;
+    rdfs:label "transfer destination"@en .
+
+###  http://enterprise.org/ontology/compliance#transferMechanism
+:transferMechanism rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransfer ;
+    rdfs:range xsd:string ;
+    rdfs:label "transfer mechanism"@en ;
+    rdfs:comment "E.g., STANDARD_CONTRACTUAL_CLAUSES, ADEQUACY_DECISION, BINDING_CORPORATE_RULES"@en .
+
+###  http://enterprise.org/ontology/compliance#dpiaRiskLevel
+:dpiaRiskLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataProtectionImpactAssessment ;
+    rdfs:range xsd:string ;
+    rdfs:label "DPIA risk level"@en .
+
+###  http://enterprise.org/ontology/compliance#dpiaCompletionDate
+:dpiaCompletionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataProtectionImpactAssessment ;
+    rdfs:range xsd:date ;
+    rdfs:label "DPIA completion date"@en .
+
+#################################################################
+#    Individuals (Framework Examples)
+#################################################################
+
+###  http://enterprise.org/ontology/compliance#GDPR
+:GDPR rdf:type owl:NamedIndividual ,
+               :ComplianceFramework ;
+    :frameworkName "General Data Protection Regulation" ;
+    :jurisdiction "European Union" ;
+    rdfs:label "GDPR"@en ;
+    rdfs:comment "EU General Data Protection Regulation 2016/679"@en .
+
+###  http://enterprise.org/ontology/compliance#CCPA
+:CCPA rdf:type owl:NamedIndividual ,
+               :ComplianceFramework ;
+    :frameworkName "California Consumer Privacy Act" ;
+    :jurisdiction "California, USA" ;
+    rdfs:label "CCPA"@en .
+
+###  http://enterprise.org/ontology/compliance#PIPEDA
+:PIPEDA rdf:type owl:NamedIndividual ,
+                 :ComplianceFramework ;
+    :frameworkName "Personal Information Protection and Electronic Documents Act" ;
+    :jurisdiction "Canada" ;
+    rdfs:label "PIPEDA"@en .
+
+###  http://enterprise.org/ontology/compliance#RightToAccess
+:RightToAccess rdf:type owl:NamedIndividual ,
+                        :DataSubjectRight ;
+    :rightName "RIGHT_TO_ACCESS" ;
+    rdfs:label "Right to Access"@en ;
+    rdfs:comment "GDPR Article 15"@en .
+
+###  http://enterprise.org/ontology/compliance#RightToErasure
+:RightToErasure rdf:type owl:NamedIndividual ,
+                         :DataSubjectRight ;
+    :rightName "RIGHT_TO_ERASURE" ;
+    rdfs:label "Right to Erasure"@en ;
+    rdfs:comment "GDPR Article 17 - Right to be forgotten"@en .
+
+###  http://enterprise.org/ontology/compliance#RightToRectification
+:RightToRectification rdf:type owl:NamedIndividual ,
+                               :DataSubjectRight ;
+    :rightName "RIGHT_TO_RECTIFICATION" ;
+    rdfs:label "Right to Rectification"@en ;
+    rdfs:comment "GDPR Article 16"@en .
+
+###  http://enterprise.org/ontology/compliance#RightToDataPortability
+:RightToDataPortability rdf:type owl:NamedIndividual ,
+                                 :DataSubjectRight ;
+    :rightName "RIGHT_TO_PORTABILITY" ;
+    rdfs:label "Right to Data Portability"@en ;
+    rdfs:comment "GDPR Article 20"@en .
+
+###  http://enterprise.org/ontology/compliance#MarketingPurpose
+:MarketingPurpose rdf:type owl:NamedIndividual ,
+                           :ConsentPurpose ;
+    :purposeName "Marketing Communications" ;
+    :purposeDescription "Sending promotional emails and marketing materials" ;
+    rdfs:label "Marketing Purpose"@en .
+
+###  http://enterprise.org/ontology/compliance#AnalyticsPurpose
+:AnalyticsPurpose rdf:type owl:NamedIndividual ,
+                           :ConsentPurpose ;
+    :purposeName "Analytics and Research" ;
+    :purposeDescription "Analysis of user behavior and preferences for service improvement" ;
+    rdfs:label "Analytics Purpose"@en .

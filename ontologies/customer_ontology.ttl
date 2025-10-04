@@ -1,0 +1,301 @@
+@prefix : <http://enterprise.org/ontology/customer#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix comp: <http://enterprise.org/ontology/compliance#> .
+@base <http://enterprise.org/ontology/customer> .
+
+<http://enterprise.org/ontology/customer> rdf:type owl:Ontology ;
+    dct:title "Enterprise Customer Ontology"@en ;
+    dct:description "Ontology for modeling customer data, profiles, and relationships in an enterprise context"@en ;
+    dct:created "2025-10-04"^^xsd:date ;
+    dct:creator "Enterprise Data Team" ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://enterprise.org/ontology/customer#Customer
+:Customer rdf:type owl:Class ;
+    rdfs:label "Customer"@en ;
+    rdfs:comment "An individual or organization that purchases or uses products/services"@en ;
+    rdfs:subClassOf foaf:Agent .
+
+###  http://enterprise.org/ontology/customer#IndividualCustomer
+:IndividualCustomer rdf:type owl:Class ;
+    rdfs:label "Individual Customer"@en ;
+    rdfs:comment "A person who is a customer"@en ;
+    rdfs:subClassOf :Customer ,
+                    foaf:Person .
+
+###  http://enterprise.org/ontology/customer#BusinessCustomer
+:BusinessCustomer rdf:type owl:Class ;
+    rdfs:label "Business Customer"@en ;
+    rdfs:comment "An organization that is a customer"@en ;
+    rdfs:subClassOf :Customer ,
+                    foaf:Organization .
+
+###  http://enterprise.org/ontology/customer#CustomerProfile
+:CustomerProfile rdf:type owl:Class ;
+    rdfs:label "Customer Profile"@en ;
+    rdfs:comment "A comprehensive profile containing customer information and preferences"@en .
+
+###  http://enterprise.org/ontology/customer#ContactInformation
+:ContactInformation rdf:type owl:Class ;
+    rdfs:label "Contact Information"@en ;
+    rdfs:comment "Contact details for reaching a customer"@en .
+
+###  http://enterprise.org/ontology/customer#Address
+:Address rdf:type owl:Class ;
+    rdfs:label "Address"@en ;
+    rdfs:comment "Physical or mailing address"@en .
+
+###  http://enterprise.org/ontology/customer#Preference
+:Preference rdf:type owl:Class ;
+    rdfs:label "Preference"@en ;
+    rdfs:comment "Customer preferences for products, services, or communications"@en .
+
+###  http://enterprise.org/ontology/customer#CustomerSegment
+:CustomerSegment rdf:type owl:Class ;
+    rdfs:label "Customer Segment"@en ;
+    rdfs:comment "A classification grouping customers by shared characteristics"@en .
+
+###  http://enterprise.org/ontology/customer#Interaction
+:Interaction rdf:type owl:Class ;
+    rdfs:label "Interaction"@en ;
+    rdfs:comment "Any interaction or touchpoint with a customer"@en .
+
+###  http://enterprise.org/ontology/customer#Transaction
+:Transaction rdf:type owl:Class ;
+    rdfs:label "Transaction"@en ;
+    rdfs:comment "A business transaction involving a customer"@en ;
+    rdfs:subClassOf :Interaction .
+
+###  http://enterprise.org/ontology/customer#CustomerRelationship
+:CustomerRelationship rdf:type owl:Class ;
+    rdfs:label "Customer Relationship"@en ;
+    rdfs:comment "The relationship between customers or with the business"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://enterprise.org/ontology/customer#hasProfile
+:hasProfile rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :CustomerProfile ;
+    rdfs:label "has profile"@en ;
+    rdfs:comment "Links a customer to their profile"@en .
+
+###  http://enterprise.org/ontology/customer#hasContactInformation
+:hasContactInformation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :ContactInformation ;
+    rdfs:label "has contact information"@en .
+
+###  http://enterprise.org/ontology/customer#hasAddress
+:hasAddress rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :Address ;
+    rdfs:label "has address"@en .
+
+###  http://enterprise.org/ontology/customer#hasPreference
+:hasPreference rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :Preference ;
+    rdfs:label "has preference"@en .
+
+###  http://enterprise.org/ontology/customer#belongsToSegment
+:belongsToSegment rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :CustomerSegment ;
+    rdfs:label "belongs to segment"@en .
+
+###  http://enterprise.org/ontology/customer#hasInteraction
+:hasInteraction rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :Interaction ;
+    rdfs:label "has interaction"@en .
+
+###  http://enterprise.org/ontology/customer#hasTransaction
+:hasTransaction rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :Transaction ;
+    rdfs:label "has transaction"@en ;
+    rdfs:subPropertyOf :hasInteraction .
+
+###  http://enterprise.org/ontology/customer#hasRelationship
+:hasRelationship rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :CustomerRelationship ;
+    rdfs:label "has relationship"@en .
+
+###  http://enterprise.org/ontology/customer#relatedToCustomer
+:relatedToCustomer rdf:type owl:ObjectProperty ;
+    rdfs:domain :CustomerRelationship ;
+    rdfs:range :Customer ;
+    rdfs:label "related to customer"@en .
+
+###  http://enterprise.org/ontology/customer#hasConsent
+:hasConsent rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range comp:Consent ;
+    rdfs:label "has consent"@en ;
+    rdfs:comment "Links customer to their data processing consent"@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://enterprise.org/ontology/customer#customerId
+:customerId rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "customer ID"@en ;
+    rdfs:comment "Unique identifier for a customer"@en .
+
+###  http://enterprise.org/ontology/customer#email
+:email rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "email"@en ;
+    rdfs:comment "Email address of the customer"@en .
+
+###  http://enterprise.org/ontology/customer#phoneNumber
+:phoneNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "phone number"@en .
+
+###  http://enterprise.org/ontology/customer#firstName
+:firstName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndividualCustomer ;
+    rdfs:range xsd:string ;
+    rdfs:label "first name"@en .
+
+###  http://enterprise.org/ontology/customer#lastName
+:lastName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndividualCustomer ;
+    rdfs:range xsd:string ;
+    rdfs:label "last name"@en .
+
+###  http://enterprise.org/ontology/customer#dateOfBirth
+:dateOfBirth rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+    rdfs:domain :IndividualCustomer ;
+    rdfs:range xsd:date ;
+    rdfs:label "date of birth"@en .
+
+###  http://enterprise.org/ontology/customer#organizationName
+:organizationName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BusinessCustomer ;
+    rdfs:range xsd:string ;
+    rdfs:label "organization name"@en .
+
+###  http://enterprise.org/ontology/customer#registrationDate
+:registrationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "registration date"@en .
+
+###  http://enterprise.org/ontology/customer#lastActivityDate
+:lastActivityDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last activity date"@en .
+
+###  http://enterprise.org/ontology/customer#customerStatus
+:customerStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "customer status"@en ;
+    rdfs:comment "Status: ACTIVE, INACTIVE, SUSPENDED, CLOSED"@en .
+
+###  http://enterprise.org/ontology/customer#streetAddress
+:streetAddress rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string ;
+    rdfs:label "street address"@en .
+
+###  http://enterprise.org/ontology/customer#city
+:city rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string ;
+    rdfs:label "city"@en .
+
+###  http://enterprise.org/ontology/customer#postalCode
+:postalCode rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string ;
+    rdfs:label "postal code"@en .
+
+###  http://enterprise.org/ontology/customer#country
+:country rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string ;
+    rdfs:label "country"@en .
+
+###  http://enterprise.org/ontology/customer#lifetimeValue
+:lifetimeValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "lifetime value"@en ;
+    rdfs:comment "Total value of customer over their lifetime"@en .
+
+###  http://enterprise.org/ontology/customer#segmentName
+:segmentName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CustomerSegment ;
+    rdfs:range xsd:string ;
+    rdfs:label "segment name"@en .
+
+###  http://enterprise.org/ontology/customer#interactionDate
+:interactionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Interaction ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "interaction date"@en .
+
+###  http://enterprise.org/ontology/customer#interactionType
+:interactionType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Interaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "interaction type"@en .
+
+###  http://enterprise.org/ontology/customer#transactionAmount
+:transactionAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Transaction ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "transaction amount"@en .
+
+###  http://enterprise.org/ontology/customer#currency
+:currency rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Transaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "currency"@en .
+
+#################################################################
+#    Individuals (Examples)
+#################################################################
+
+###  http://enterprise.org/ontology/customer#PremiumSegment
+:PremiumSegment rdf:type owl:NamedIndividual ,
+                         :CustomerSegment ;
+    :segmentName "Premium Customers" ;
+    rdfs:label "Premium Segment"@en .
+
+###  http://enterprise.org/ontology/customer#StandardSegment
+:StandardSegment rdf:type owl:NamedIndividual ,
+                          :CustomerSegment ;
+    :segmentName "Standard Customers" ;
+    rdfs:label "Standard Segment"@en .
+
+###  http://enterprise.org/ontology/customer#EnterprisSegment
+:EnterpriseSegment rdf:type owl:NamedIndividual ,
+                            :CustomerSegment ;
+    :segmentName "Enterprise Customers" ;
+    rdfs:label "Enterprise Segment"@en .

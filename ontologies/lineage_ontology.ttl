@@ -1,0 +1,469 @@
+@prefix : <http://enterprise.org/ontology/lineage#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@base <http://enterprise.org/ontology/lineage> .
+
+<http://enterprise.org/ontology/lineage> rdf:type owl:Ontology ;
+    dct:title "Enterprise Data Lineage Ontology"@en ;
+    dct:description "Ontology for tracking data provenance, lineage, and transformation pipelines in enterprise systems"@en ;
+    dct:created "2025-10-04"^^xsd:date ;
+    dct:creator "Enterprise Data Team" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://www.w3.org/ns/prov> ;
+    rdfs:comment "Extends W3C PROV-O for enterprise data lineage tracking"@en .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://enterprise.org/ontology/lineage#DataAsset
+:DataAsset rdf:type owl:Class ;
+    rdfs:label "Data Asset"@en ;
+    rdfs:comment "A data resource that can be tracked through its lifecycle"@en ;
+    rdfs:subClassOf prov:Entity .
+
+###  http://enterprise.org/ontology/lineage#Dataset
+:Dataset rdf:type owl:Class ;
+    rdfs:label "Dataset"@en ;
+    rdfs:comment "A collection of structured data"@en ;
+    rdfs:subClassOf :DataAsset .
+
+###  http://enterprise.org/ontology/lineage#DataField
+:DataField rdf:type owl:Class ;
+    rdfs:label "Data Field"@en ;
+    rdfs:comment "An individual field or column within a dataset"@en ;
+    rdfs:subClassOf :DataAsset .
+
+###  http://enterprise.org/ontology/lineage#DataSource
+:DataSource rdf:type owl:Class ;
+    rdfs:label "Data Source"@en ;
+    rdfs:comment "Origin system or location of data"@en .
+
+###  http://enterprise.org/ontology/lineage#Database
+:Database rdf:type owl:Class ;
+    rdfs:label "Database"@en ;
+    rdfs:comment "A database system serving as data source"@en ;
+    rdfs:subClassOf :DataSource .
+
+###  http://enterprise.org/ontology/lineage#APIEndpoint
+:APIEndpoint rdf:type owl:Class ;
+    rdfs:label "API Endpoint"@en ;
+    rdfs:comment "An API serving as data source"@en ;
+    rdfs:subClassOf :DataSource .
+
+###  http://enterprise.org/ontology/lineage#FileSystem
+:FileSystem rdf:type owl:Class ;
+    rdfs:label "File System"@en ;
+    rdfs:comment "File-based data source"@en ;
+    rdfs:subClassOf :DataSource .
+
+###  http://enterprise.org/ontology/lineage#DataTransformation
+:DataTransformation rdf:type owl:Class ;
+    rdfs:label "Data Transformation"@en ;
+    rdfs:comment "A process that transforms data from one form to another"@en ;
+    rdfs:subClassOf prov:Activity .
+
+###  http://enterprise.org/ontology/lineage#ETLProcess
+:ETLProcess rdf:type owl:Class ;
+    rdfs:label "ETL Process"@en ;
+    rdfs:comment "Extract, Transform, Load process"@en ;
+    rdfs:subClassOf :DataTransformation .
+
+###  http://enterprise.org/ontology/lineage#DataValidation
+:DataValidation rdf:type owl:Class ;
+    rdfs:label "Data Validation"@en ;
+    rdfs:comment "A validation activity ensuring data quality"@en ;
+    rdfs:subClassOf prov:Activity .
+
+###  http://enterprise.org/ontology/lineage#DataEnrichment
+:DataEnrichment rdf:type owl:Class ;
+    rdfs:label "Data Enrichment"@en ;
+    rdfs:comment "Process of enhancing data with additional information"@en ;
+    rdfs:subClassOf :DataTransformation .
+
+###  http://enterprise.org/ontology/lineage#DataAggregation
+:DataAggregation rdf:type owl:Class ;
+    rdfs:label "Data Aggregation"@en ;
+    rdfs:comment "Process of combining data from multiple sources"@en ;
+    rdfs:subClassOf :DataTransformation .
+
+###  http://enterprise.org/ontology/lineage#DataPipeline
+:DataPipeline rdf:type owl:Class ;
+    rdfs:label "Data Pipeline"@en ;
+    rdfs:comment "A series of data transformations forming a pipeline"@en ;
+    rdfs:subClassOf prov:Plan .
+
+###  http://enterprise.org/ontology/lineage#TransformationRule
+:TransformationRule rdf:type owl:Class ;
+    rdfs:label "Transformation Rule"@en ;
+    rdfs:comment "A rule or logic applied during data transformation"@en .
+
+###  http://enterprise.org/ontology/lineage#DataQualityMetric
+:DataQualityMetric rdf:type owl:Class ;
+    rdfs:label "Data Quality Metric"@en ;
+    rdfs:comment "Metrics measuring data quality"@en .
+
+###  http://enterprise.org/ontology/lineage#DataVersion
+:DataVersion rdf:type owl:Class ;
+    rdfs:label "Data Version"@en ;
+    rdfs:comment "A specific version of a data asset"@en ;
+    rdfs:subClassOf prov:Entity .
+
+###  http://enterprise.org/ontology/lineage#DataOwner
+:DataOwner rdf:type owl:Class ;
+    rdfs:label "Data Owner"@en ;
+    rdfs:comment "Person or system responsible for a data asset"@en ;
+    rdfs:subClassOf prov:Agent .
+
+###  http://enterprise.org/ontology/lineage#DataSteward
+:DataSteward rdf:type owl:Class ;
+    rdfs:label "Data Steward"@en ;
+    rdfs:comment "Person responsible for data governance and quality"@en ;
+    rdfs:subClassOf prov:Agent .
+
+###  http://enterprise.org/ontology/lineage#DataLineageGraph
+:DataLineageGraph rdf:type owl:Class ;
+    rdfs:label "Data Lineage Graph"@en ;
+    rdfs:comment "A graph representing the complete lineage of a data asset"@en .
+
+###  http://enterprise.org/ontology/lineage#ImpactAnalysis
+:ImpactAnalysis rdf:type owl:Class ;
+    rdfs:label "Impact Analysis"@en ;
+    rdfs:comment "Analysis of downstream impact of data changes"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://enterprise.org/ontology/lineage#derivedFrom
+:derivedFrom rdf:type owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:comment "Indicates data asset is derived from another"@en ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    owl:inverseOf :derivedTo .
+
+###  http://enterprise.org/ontology/lineage#derivedTo
+:derivedTo rdf:type owl:ObjectProperty ;
+    rdfs:label "derived to"@en ;
+    rdfs:comment "Indicates a data asset was used to derive another"@en .
+
+###  http://enterprise.org/ontology/lineage#transformedBy
+:transformedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataTransformation ;
+    rdfs:label "transformed by"@en ;
+    rdfs:subPropertyOf prov:wasGeneratedBy .
+
+###  http://enterprise.org/ontology/lineage#usesInput
+:usesInput rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :DataAsset ;
+    rdfs:label "uses input"@en ;
+    rdfs:subPropertyOf prov:used .
+
+###  http://enterprise.org/ontology/lineage#producesOutput
+:producesOutput rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :DataAsset ;
+    rdfs:label "produces output"@en .
+
+###  http://enterprise.org/ontology/lineage#hasSource
+:hasSource rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataSource ;
+    rdfs:label "has source"@en .
+
+###  http://enterprise.org/ontology/lineage#partOfPipeline
+:partOfPipeline rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :DataPipeline ;
+    rdfs:label "part of pipeline"@en .
+
+###  http://enterprise.org/ontology/lineage#appliesRule
+:appliesRule rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :TransformationRule ;
+    rdfs:label "applies rule"@en .
+
+###  http://enterprise.org/ontology/lineage#hasQualityMetric
+:hasQualityMetric rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataQualityMetric ;
+    rdfs:label "has quality metric"@en .
+
+###  http://enterprise.org/ontology/lineage#hasVersion
+:hasVersion rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataVersion ;
+    rdfs:label "has version"@en .
+
+###  http://enterprise.org/ontology/lineage#ownedBy
+:ownedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataOwner ;
+    rdfs:label "owned by"@en ;
+    rdfs:subPropertyOf prov:wasAttributedTo .
+
+###  http://enterprise.org/ontology/lineage#governedBy
+:governedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataSteward ;
+    rdfs:label "governed by"@en .
+
+###  http://enterprise.org/ontology/lineage#hasLineageGraph
+:hasLineageGraph rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataLineageGraph ;
+    rdfs:label "has lineage graph"@en .
+
+###  http://enterprise.org/ontology/lineage#hasImpactAnalysis
+:hasImpactAnalysis rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :ImpactAnalysis ;
+    rdfs:label "has impact analysis"@en .
+
+###  http://enterprise.org/ontology/lineage#dependsOn
+:dependsOn rdf:type owl:ObjectProperty ,
+                    owl:TransitiveProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range :DataAsset ;
+    rdfs:label "depends on"@en ;
+    rdfs:comment "Transitive dependency between data assets"@en .
+
+###  http://enterprise.org/ontology/lineage#followedBy
+:followedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :DataTransformation ;
+    rdfs:label "followed by"@en ;
+    rdfs:comment "Sequence of transformations in a pipeline"@en .
+
+###  http://enterprise.org/ontology/lineage#precedes
+:precedes rdf:type owl:ObjectProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range :DataTransformation ;
+    rdfs:label "precedes"@en ;
+    owl:inverseOf :followedBy .
+
+###  http://enterprise.org/ontology/lineage#containsField
+:containsField rdf:type owl:ObjectProperty ;
+    rdfs:domain :Dataset ;
+    rdfs:range :DataField ;
+    rdfs:label "contains field"@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://enterprise.org/ontology/lineage#assetId
+:assetId rdf:type owl:DatatypeProperty ,
+                  owl:FunctionalProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "asset ID"@en .
+
+###  http://enterprise.org/ontology/lineage#assetName
+:assetName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "asset name"@en .
+
+###  http://enterprise.org/ontology/lineage#assetDescription
+:assetDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "asset description"@en .
+
+###  http://enterprise.org/ontology/lineage#createdDate
+:createdDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created date"@en .
+
+###  http://enterprise.org/ontology/lineage#lastModifiedDate
+:lastModifiedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last modified date"@en .
+
+###  http://enterprise.org/ontology/lineage#dataFormat
+:dataFormat rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "data format"@en ;
+    rdfs:comment "E.g., CSV, JSON, PARQUET, AVRO"@en .
+
+###  http://enterprise.org/ontology/lineage#recordCount
+:recordCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Dataset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "record count"@en .
+
+###  http://enterprise.org/ontology/lineage#fieldName
+:fieldName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataField ;
+    rdfs:range xsd:string ;
+    rdfs:label "field name"@en .
+
+###  http://enterprise.org/ontology/lineage#dataType
+:dataType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataField ;
+    rdfs:range xsd:string ;
+    rdfs:label "data type"@en .
+
+###  http://enterprise.org/ontology/lineage#isNullable
+:isNullable rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataField ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is nullable"@en .
+
+###  http://enterprise.org/ontology/lineage#sourceSystem
+:sourceSystem rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataSource ;
+    rdfs:range xsd:string ;
+    rdfs:label "source system"@en .
+
+###  http://enterprise.org/ontology/lineage#connectionString
+:connectionString rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataSource ;
+    rdfs:range xsd:string ;
+    rdfs:label "connection string"@en .
+
+###  http://enterprise.org/ontology/lineage#sourceLocation
+:sourceLocation rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataSource ;
+    rdfs:range xsd:string ;
+    rdfs:label "source location"@en .
+
+###  http://enterprise.org/ontology/lineage#transformationType
+:transformationType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range xsd:string ;
+    rdfs:label "transformation type"@en ;
+    rdfs:comment "E.g., FILTER, MAP, AGGREGATE, JOIN, UNION"@en .
+
+###  http://enterprise.org/ontology/lineage#transformationLogic
+:transformationLogic rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range xsd:string ;
+    rdfs:label "transformation logic"@en ;
+    rdfs:comment "SQL, Python code, or description of transformation"@en .
+
+###  http://enterprise.org/ontology/lineage#executionTime
+:executionTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "execution time"@en .
+
+###  http://enterprise.org/ontology/lineage#executionDuration
+:executionDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range xsd:integer ;
+    rdfs:label "execution duration"@en ;
+    rdfs:comment "Duration in milliseconds"@en .
+
+###  http://enterprise.org/ontology/lineage#executionStatus
+:executionStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataTransformation ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution status"@en ;
+    rdfs:comment "Values: SUCCESS, FAILED, RUNNING, PENDING"@en .
+
+###  http://enterprise.org/ontology/lineage#pipelineName
+:pipelineName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataPipeline ;
+    rdfs:range xsd:string ;
+    rdfs:label "pipeline name"@en .
+
+###  http://enterprise.org/ontology/lineage#pipelineSchedule
+:pipelineSchedule rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataPipeline ;
+    rdfs:range xsd:string ;
+    rdfs:label "pipeline schedule"@en ;
+    rdfs:comment "Cron expression or schedule description"@en .
+
+###  http://enterprise.org/ontology/lineage#ruleName
+:ruleName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TransformationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "rule name"@en .
+
+###  http://enterprise.org/ontology/lineage#ruleExpression
+:ruleExpression rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TransformationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "rule expression"@en .
+
+###  http://enterprise.org/ontology/lineage#metricName
+:metricName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataQualityMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "metric name"@en .
+
+###  http://enterprise.org/ontology/lineage#metricValue
+:metricValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataQualityMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "metric value"@en .
+
+###  http://enterprise.org/ontology/lineage#metricThreshold
+:metricThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataQualityMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "metric threshold"@en .
+
+###  http://enterprise.org/ontology/lineage#versionNumber
+:versionNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataVersion ;
+    rdfs:range xsd:string ;
+    rdfs:label "version number"@en .
+
+###  http://enterprise.org/ontology/lineage#versionDate
+:versionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataVersion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "version date"@en .
+
+###  http://enterprise.org/ontology/lineage#checksum
+:checksum rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataVersion ;
+    rdfs:range xsd:string ;
+    rdfs:label "checksum"@en ;
+    rdfs:comment "Hash for data integrity verification"@en .
+
+###  http://enterprise.org/ontology/lineage#lineageDepth
+:lineageDepth rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DataLineageGraph ;
+    rdfs:range xsd:integer ;
+    rdfs:label "lineage depth"@en ;
+    rdfs:comment "Number of levels in lineage hierarchy"@en .
+
+###  http://enterprise.org/ontology/lineage#impactedAssets
+:impactedAssets rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ImpactAnalysis ;
+    rdfs:range xsd:integer ;
+    rdfs:label "impacted assets"@en ;
+    rdfs:comment "Count of downstream assets affected by changes"@en .
+
+#################################################################
+#    Annotation Properties for Business Metadata
+#################################################################
+
+###  http://enterprise.org/ontology/lineage#businessGlossaryTerm
+:businessGlossaryTerm rdf:type owl:AnnotationProperty ;
+    rdfs:label "business glossary term"@en ;
+    rdfs:comment "Link to business glossary definition"@en .
+
+###  http://enterprise.org/ontology/lineage#certificationStatus
+:certificationStatus rdf:type owl:AnnotationProperty ;
+    rdfs:label "certification status"@en ;
+    rdfs:comment "Data certification or approval status"@en .
+
+###  http://enterprise.org/ontology/lineage#tags
+:tags rdf:type owl:AnnotationProperty ;
+    rdfs:label "tags"@en ;
+    rdfs:comment "Metadata tags for categorization"@en .

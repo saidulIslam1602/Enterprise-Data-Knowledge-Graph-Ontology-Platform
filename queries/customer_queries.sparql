@@ -1,0 +1,248 @@
+# ==============================================================================
+# CUSTOMER DOMAIN QUERIES
+# Collection of SPARQL queries for customer data analysis and reporting
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Q1: Find all active customers with their contact information
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?customer ?email ?phone ?status ?registrationDate
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:customerStatus ?status ;
+              cus:registrationDate ?registrationDate .
+    OPTIONAL { ?customer cus:phoneNumber ?phone }
+    FILTER (?status = "ACTIVE")
+}
+ORDER BY DESC(?registrationDate)
+
+# ------------------------------------------------------------------------------
+# Q2: Find premium customers with lifetime value above threshold
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?lifetimeValue ?segment
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:lifetimeValue ?lifetimeValue ;
+              cus:belongsToSegment ?segmentNode .
+    ?segmentNode cus:segmentName ?segment .
+    FILTER (?lifetimeValue > 10000)
+}
+ORDER BY DESC(?lifetimeValue)
+
+# ------------------------------------------------------------------------------
+# Q3: Customer segmentation analysis - count customers by segment
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?segmentName (COUNT(?customer) AS ?customerCount)
+WHERE {
+    ?customer a cus:Customer ;
+              cus:belongsToSegment ?segment .
+    ?segment cus:segmentName ?segmentName .
+}
+GROUP BY ?segmentName
+ORDER BY DESC(?customerCount)
+
+# ------------------------------------------------------------------------------
+# Q4: Find customers by geographic region
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?city ?country
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:hasAddress ?address .
+    ?address cus:city ?city ;
+             cus:country ?country .
+    FILTER (?country IN ("US", "GB", "DE", "FR"))
+}
+ORDER BY ?country ?city
+
+# ------------------------------------------------------------------------------
+# Q5: Customer transaction history with aggregated spending
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email 
+       (COUNT(?transaction) AS ?transactionCount)
+       (SUM(?amount) AS ?totalSpent)
+       (AVG(?amount) AS ?avgTransaction)
+       (MAX(?amount) AS ?maxTransaction)
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:hasTransaction ?transaction .
+    ?transaction cus:transactionAmount ?amount ;
+                 cus:currency "USD" .
+}
+GROUP BY ?customer ?email
+HAVING (COUNT(?transaction) > 5)
+ORDER BY DESC(?totalSpent)
+
+# ------------------------------------------------------------------------------
+# Q6: Customer churn risk analysis - inactive customers
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?customer ?email ?lastActivity ?daysSinceActivity
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:lastActivityDate ?lastActivity ;
+              cus:customerStatus "ACTIVE" .
+    BIND(NOW() - ?lastActivity AS ?daysSinceActivity)
+    FILTER (?daysSinceActivity > 180)
+}
+ORDER BY DESC(?daysSinceActivity)
+
+# ------------------------------------------------------------------------------
+# Q7: Find customers with multiple addresses (business locations)
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email (COUNT(?address) AS ?addressCount)
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:hasAddress ?address .
+}
+GROUP BY ?customer ?email
+HAVING (COUNT(?address) > 1)
+ORDER BY DESC(?addressCount)
+
+# ------------------------------------------------------------------------------
+# Q8: Customer preferences analysis
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?preference
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:hasPreference ?preferenceNode .
+    ?preferenceNode rdfs:label ?preference .
+}
+
+# ------------------------------------------------------------------------------
+# Q9: Individual vs Business customer breakdown
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customerType (COUNT(?customer) AS ?count) 
+       (AVG(?ltv) AS ?avgLifetimeValue)
+WHERE {
+    {
+        ?customer a cus:IndividualCustomer .
+        BIND("Individual" AS ?customerType)
+    } UNION {
+        ?customer a cus:BusinessCustomer .
+        BIND("Business" AS ?customerType)
+    }
+    OPTIONAL { ?customer cus:lifetimeValue ?ltv }
+}
+GROUP BY ?customerType
+
+# ------------------------------------------------------------------------------
+# Q10: Customer acquisition trend by month
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?yearMonth (COUNT(?customer) AS ?newCustomers)
+WHERE {
+    ?customer a cus:Customer ;
+              cus:registrationDate ?regDate .
+    BIND(CONCAT(STR(YEAR(?regDate)), "-", 
+                IF(MONTH(?regDate) < 10, "0", ""), 
+                STR(MONTH(?regDate))) AS ?yearMonth)
+}
+GROUP BY ?yearMonth
+ORDER BY ?yearMonth
+
+# ------------------------------------------------------------------------------
+# Q11: High-value customers with recent purchases
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT DISTINCT ?customer ?email ?lifetimeValue ?lastPurchase
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:lifetimeValue ?lifetimeValue ;
+              cus:hasTransaction ?transaction .
+    ?transaction cus:interactionDate ?lastPurchase ;
+                 cus:interactionType "PURCHASE" .
+    FILTER (?lifetimeValue > 5000)
+    FILTER (?lastPurchase > "2024-01-01T00:00:00"^^xsd:dateTime)
+}
+ORDER BY DESC(?lifetimeValue)
+
+# ------------------------------------------------------------------------------
+# Q12: Customer relationship network analysis
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer1 ?email1 ?customer2 ?email2 ?relationshipType
+WHERE {
+    ?customer1 a cus:Customer ;
+               cus:email ?email1 ;
+               cus:hasRelationship ?relationship .
+    ?relationship cus:relatedToCustomer ?customer2 ;
+                  rdfs:label ?relationshipType .
+    ?customer2 cus:email ?email2 .
+}
+
+# ------------------------------------------------------------------------------
+# Q13: Customer status transition history
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?status ?statusChangeDate
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:customerStatus ?status ;
+              cus:registrationDate ?statusChangeDate .
+}
+ORDER BY ?customer ?statusChangeDate
+
+# ------------------------------------------------------------------------------
+# Q14: Cross-sell opportunities - customers without specific product types
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?segment
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              cus:belongsToSegment ?segmentNode .
+    ?segmentNode cus:segmentName ?segment .
+    FILTER NOT EXISTS {
+        ?customer cus:hasTransaction ?transaction .
+        ?transaction cus:interactionType "SUBSCRIPTION" .
+    }
+}
+
+# ------------------------------------------------------------------------------
+# Q15: Customer age demographics (for individual customers)
+# ------------------------------------------------------------------------------
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?firstName ?lastName ?dateOfBirth ?age
+WHERE {
+    ?customer a cus:IndividualCustomer ;
+              cus:firstName ?firstName ;
+              cus:lastName ?lastName ;
+              cus:dateOfBirth ?dateOfBirth .
+    BIND(YEAR(NOW()) - YEAR(?dateOfBirth) AS ?age)
+}
+ORDER BY DESC(?age)

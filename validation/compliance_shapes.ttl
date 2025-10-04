@@ -1,0 +1,373 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix comp: <http://enterprise.org/ontology/compliance#> .
+@prefix : <http://enterprise.org/validation/compliance#> .
+
+# Shape for Consent Records
+:ConsentShape
+    a sh:NodeShape ;
+    sh:targetClass comp:Consent ;
+    sh:property [
+        sh:path comp:consentId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^CONSENT-[0-9]{8}$" ;
+        sh:message "Consent ID must be in format CONSENT-XXXXXXXX (8 digits)" ;
+    ] ;
+    sh:property [
+        sh:path comp:consentStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "ACTIVE" "WITHDRAWN" "EXPIRED" "PENDING" ) ;
+        sh:message "Consent status must be ACTIVE, WITHDRAWN, EXPIRED, or PENDING" ;
+    ] ;
+    sh:property [
+        sh:path comp:consentGivenDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Consent given date is required" ;
+    ] ;
+    sh:property [
+        sh:path comp:consentMethod ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "OPT_IN" "OPT_OUT" "IMPLICIT" "EXPLICIT" ) ;
+        sh:message "Consent method must be OPT_IN, OPT_OUT, IMPLICIT, or EXPLICIT" ;
+    ] ;
+    sh:property [
+        sh:path comp:consentFor ;
+        sh:minCount 1 ;
+        sh:class comp:ConsentPurpose ;
+        sh:message "Consent must specify at least one purpose" ;
+    ] .
+
+# GDPR Requirement: Withdrawn consent must have withdrawal date
+:WithdrawnConsentShape
+    a sh:NodeShape ;
+    sh:targetClass comp:Consent ;
+    sh:sparql [
+        sh:message "Withdrawn consent must have a withdrawal date (GDPR Article 7)" ;
+        sh:prefixes comp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this comp:consentStatus "WITHDRAWN" .
+                FILTER NOT EXISTS { $this comp:consentWithdrawnDate ?date }
+            }
+        """ ;
+    ] .
+
+# GDPR Requirement: Expired consent must have expiry date
+:ExpiredConsentShape
+    a sh:NodeShape ;
+    sh:targetClass comp:Consent ;
+    sh:sparql [
+        sh:message "Expired consent must have an expiry date" ;
+        sh:prefixes comp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this comp:consentStatus "EXPIRED" .
+                FILTER NOT EXISTS { $this comp:consentExpiryDate ?date }
+            }
+        """ ;
+    ] .
+
+# Shape for Processing Activities
+:ProcessingActivityShape
+    a sh:NodeShape ;
+    sh:targetClass comp:ProcessingActivity ;
+    sh:property [
+        sh:path comp:activityName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Processing activity name is required (GDPR Article 30)" ;
+    ] ;
+    sh:property [
+        sh:path comp:activityDescription ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "Processing activity must have detailed description" ;
+    ] ;
+    sh:property [
+        sh:path comp:hasLegalBasis ;
+        sh:minCount 1 ;
+        sh:class comp:LegalBasis ;
+        sh:message "Processing activity must have at least one legal basis (GDPR Article 6)" ;
+    ] ;
+    sh:property [
+        sh:path comp:processesDataCategory ;
+        sh:minCount 1 ;
+        sh:class comp:DataCategory ;
+        sh:message "Processing activity must specify data categories being processed" ;
+    ] ;
+    sh:property [
+        sh:path comp:controlledBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class comp:DataController ;
+        sh:message "Processing activity must have exactly one data controller" ;
+    ] ;
+    sh:property [
+        sh:path comp:subjectToFramework ;
+        sh:minCount 1 ;
+        sh:class comp:ComplianceFramework ;
+        sh:message "Processing activity must be subject to at least one compliance framework" ;
+    ] .
+
+# Shape for Legal Basis
+:LegalBasisShape
+    a sh:NodeShape ;
+    sh:targetClass comp:LegalBasis ;
+    sh:property [
+        sh:path comp:legalBasisType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "CONSENT" "CONTRACT" "LEGAL_OBLIGATION" "VITAL_INTERESTS" "PUBLIC_TASK" "LEGITIMATE_INTERESTS" ) ;
+        sh:message "Legal basis must be one of the GDPR Article 6 grounds" ;
+    ] .
+
+# Shape for Data Retention Policy
+:DataRetentionPolicyShape
+    a sh:NodeShape ;
+    sh:targetClass comp:DataRetentionPolicy ;
+    sh:property [
+        sh:path comp:retentionPeriodDays ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 7300 ;
+        sh:message "Retention period must be between 1 and 7300 days (20 years)" ;
+    ] ;
+    sh:property [
+        sh:path comp:retentionJustification ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "Data retention must have documented justification (GDPR Article 5)" ;
+    ] .
+
+# Shape for Data Subject Rights Requests
+:RightExerciseRequestShape
+    a sh:NodeShape ;
+    sh:targetClass comp:RightExerciseRequest ;
+    sh:property [
+        sh:path comp:requestId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^DSR-[0-9]{8}$" ;
+        sh:message "Data Subject Request ID must be in format DSR-XXXXXXXX" ;
+    ] ;
+    sh:property [
+        sh:path comp:requestDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Request date is required" ;
+    ] ;
+    sh:property [
+        sh:path comp:responseDeadline ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Response deadline is required (GDPR Article 12 - typically 30 days)" ;
+    ] ;
+    sh:property [
+        sh:path comp:requestStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "PENDING" "IN_PROGRESS" "COMPLETED" "REJECTED" ) ;
+        sh:message "Request status must be PENDING, IN_PROGRESS, COMPLETED, or REJECTED" ;
+    ] ;
+    sh:property [
+        sh:path comp:submittedBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class comp:DataSubject ;
+        sh:message "Request must be submitted by a data subject" ;
+    ] ;
+    sh:property [
+        sh:path comp:requestsRight ;
+        sh:minCount 1 ;
+        sh:class comp:DataSubjectRight ;
+        sh:message "Request must specify at least one data subject right" ;
+    ] .
+
+# GDPR Business Rule: Response deadline must be within 30 days
+:ResponseDeadlineValidationShape
+    a sh:NodeShape ;
+    sh:targetClass comp:RightExerciseRequest ;
+    sh:sparql [
+        sh:message "Response deadline must be within 30 days of request date (GDPR Article 12)" ;
+        sh:prefixes comp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this comp:requestDate ?requestDate ;
+                      comp:responseDeadline ?deadline .
+                BIND(?deadline - ?requestDate AS ?daysDiff)
+                FILTER (?daysDiff > 30 || ?daysDiff < 0)
+            }
+        """ ;
+    ] .
+
+# Shape for Data Breach Incidents
+:DataBreachIncidentShape
+    a sh:NodeShape ;
+    sh:targetClass comp:DataBreachIncident ;
+    sh:property [
+        sh:path comp:incidentId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^BREACH-[0-9]{8}$" ;
+        sh:message "Incident ID must be in format BREACH-XXXXXXXX" ;
+    ] ;
+    sh:property [
+        sh:path comp:incidentDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Incident date is required" ;
+    ] ;
+    sh:property [
+        sh:path comp:incidentSeverity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "LOW" "MEDIUM" "HIGH" "CRITICAL" ) ;
+        sh:message "Incident severity must be LOW, MEDIUM, HIGH, or CRITICAL" ;
+    ] ;
+    sh:property [
+        sh:path comp:affectedRecordsCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Affected records count is required and must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path comp:notificationRequired ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Notification requirement status must be specified" ;
+    ] .
+
+# GDPR Business Rule: High/Critical breaches require notification
+:BreachNotificationRequirementShape
+    a sh:NodeShape ;
+    sh:targetClass comp:DataBreachIncident ;
+    sh:sparql [
+        sh:message "High or Critical severity breaches must require notification (GDPR Article 33)" ;
+        sh:prefixes comp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this comp:incidentSeverity ?severity ;
+                      comp:notificationRequired false .
+                FILTER (?severity IN ("HIGH", "CRITICAL"))
+            }
+        """ ;
+    ] .
+
+# Shape for Audit Logs
+:AuditLogShape
+    a sh:NodeShape ;
+    sh:targetClass comp:AuditLog ;
+    sh:property [
+        sh:path comp:auditTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Audit timestamp is required for accountability" ;
+    ] ;
+    sh:property [
+        sh:path comp:auditAction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "CREATE" "READ" "UPDATE" "DELETE" "EXPORT" ) ;
+        sh:message "Audit action must be CREATE, READ, UPDATE, DELETE, or EXPORT" ;
+    ] ;
+    sh:property [
+        sh:path comp:auditUser ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Audit user is required for traceability" ;
+    ] .
+
+# Shape for Data Transfers
+:DataTransferShape
+    a sh:NodeShape ;
+    sh:targetClass comp:DataTransfer ;
+    sh:property [
+        sh:path comp:transferDestination ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Transfer destination is required (GDPR Chapter V)" ;
+    ] ;
+    sh:property [
+        sh:path comp:transferMechanism ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "STANDARD_CONTRACTUAL_CLAUSES" "ADEQUACY_DECISION" "BINDING_CORPORATE_RULES" "DEROGATIONS" "EXPLICIT_CONSENT" ) ;
+        sh:message "Transfer mechanism must be valid under GDPR Chapter V" ;
+    ] .
+
+# Shape for DPIA (Data Protection Impact Assessment)
+:DPIAShape
+    a sh:NodeShape ;
+    sh:targetClass comp:DataProtectionImpactAssessment ;
+    sh:property [
+        sh:path comp:dpiaRiskLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "LOW" "MEDIUM" "HIGH" "CRITICAL" ) ;
+        sh:message "DPIA risk level is required" ;
+    ] ;
+    sh:property [
+        sh:path comp:dpiaCompletionDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "DPIA completion date is required (GDPR Article 35)" ;
+    ] .
+
+# GDPR Business Rule: High-risk processing requires DPIA
+:HighRiskProcessingDPIAShape
+    a sh:NodeShape ;
+    sh:targetClass comp:ProcessingActivity ;
+    sh:sparql [
+        sh:message "High-risk processing activities must have completed DPIA (GDPR Article 35)" ;
+        sh:prefixes comp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this comp:processesDataCategory ?category .
+                ?category a comp:SensitiveData .
+                FILTER NOT EXISTS { $this comp:hasDPIA ?dpia }
+            }
+        """ ;
+    ] .
+
+# Shape for Sensitive Data - Stricter Requirements
+:SensitiveDataShape
+    a sh:NodeShape ;
+    sh:targetClass comp:SensitiveData ;
+    sh:property [
+        sh:path comp:sensitivityLevel ;
+        sh:minCount 1 ;
+        sh:in ( "CONFIDENTIAL" "RESTRICTED" ) ;
+        sh:message "Sensitive data must be marked as CONFIDENTIAL or RESTRICTED (GDPR Article 9)" ;
+    ] .

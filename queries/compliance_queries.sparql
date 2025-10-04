@@ -1,0 +1,302 @@
+# ==============================================================================
+# COMPLIANCE & GOVERNANCE QUERIES
+# GDPR/CCPA compliance monitoring and data subject rights management
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Q1: Active consents by purpose
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?purposeName (COUNT(?consent) AS ?activeConsentCount)
+WHERE {
+    ?consent a comp:Consent ;
+             comp:consentStatus "ACTIVE" ;
+             comp:consentFor ?purpose .
+    ?purpose comp:purposeName ?purposeName .
+}
+GROUP BY ?purposeName
+ORDER BY DESC(?activeConsentCount)
+
+# ------------------------------------------------------------------------------
+# Q2: Customers with withdrawn marketing consent (opt-out tracking)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?customer ?email ?withdrawnDate ?purpose
+WHERE {
+    ?customer a cus:Customer ;
+              cus:email ?email ;
+              comp:hasConsent ?consent .
+    ?consent comp:consentStatus "WITHDRAWN" ;
+             comp:consentWithdrawnDate ?withdrawnDate ;
+             comp:consentFor ?purposeNode .
+    ?purposeNode comp:purposeName ?purpose .
+    FILTER (?purpose = "Marketing Communications")
+}
+ORDER BY DESC(?withdrawnDate)
+
+# ------------------------------------------------------------------------------
+# Q3: Consent expiry monitoring - expiring within 30 days
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?consent ?consentId ?expiryDate ?daysUntilExpiry
+WHERE {
+    ?consent a comp:Consent ;
+             comp:consentId ?consentId ;
+             comp:consentExpiryDate ?expiryDate ;
+             comp:consentStatus "ACTIVE" .
+    BIND(?expiryDate - NOW() AS ?daysUntilExpiry)
+    FILTER (?daysUntilExpiry > 0 && ?daysUntilExpiry <= 30)
+}
+ORDER BY ?daysUntilExpiry
+
+# ------------------------------------------------------------------------------
+# Q4: GDPR compliance report - data subject rights requests
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?requestId ?rightName ?requestDate ?responseDeadline ?status ?daysRemaining
+WHERE {
+    ?request a comp:RightExerciseRequest ;
+             comp:requestId ?requestId ;
+             comp:requestDate ?requestDate ;
+             comp:responseDeadline ?responseDeadline ;
+             comp:requestStatus ?status ;
+             comp:requestsRight ?right .
+    ?right comp:rightName ?rightName .
+    BIND(?responseDeadline - NOW() AS ?daysRemaining)
+    FILTER (?status != "COMPLETED")
+}
+ORDER BY ?daysRemaining
+
+# ------------------------------------------------------------------------------
+# Q5: Overdue data subject rights requests (GDPR Article 12 violation)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?requestId ?rightName ?requestDate ?responseDeadline ?daysOverdue
+WHERE {
+    ?request a comp:RightExerciseRequest ;
+             comp:requestId ?requestId ;
+             comp:requestDate ?requestDate ;
+             comp:responseDeadline ?responseDeadline ;
+             comp:requestStatus ?status ;
+             comp:requestsRight ?right .
+    ?right comp:rightName ?rightName .
+    BIND(NOW() - ?responseDeadline AS ?daysOverdue)
+    FILTER (?status IN ("PENDING", "IN_PROGRESS") && ?daysOverdue > 0)
+}
+ORDER BY DESC(?daysOverdue)
+
+# ------------------------------------------------------------------------------
+# Q6: Processing activities by legal basis (GDPR Article 6)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?activityName ?legalBasisType ?framework
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:activityName ?activityName ;
+              comp:hasLegalBasis ?legalBasis ;
+              comp:subjectToFramework ?frameworkNode .
+    ?legalBasis comp:legalBasisType ?legalBasisType .
+    ?frameworkNode comp:frameworkName ?framework .
+}
+ORDER BY ?framework ?activityName
+
+# ------------------------------------------------------------------------------
+# Q7: Sensitive data processing activities requiring DPIA
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?activityName ?dataCategory ?dpiaStatus
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:activityName ?activityName ;
+              comp:processesDataCategory ?dataNode .
+    ?dataNode a comp:SensitiveData ;
+              comp:dataCategoryName ?dataCategory .
+    OPTIONAL {
+        ?activity comp:hasDPIA ?dpia .
+        BIND("Completed" AS ?dpiaStatus)
+    }
+    BIND(IF(BOUND(?dpia), "Completed", "MISSING - REQUIRED") AS ?dpiaStatus)
+}
+
+# ------------------------------------------------------------------------------
+# Q8: Data breach incidents by severity
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?incidentId ?incidentDate ?severity ?affectedRecords ?notificationRequired
+WHERE {
+    ?incident a comp:DataBreachIncident ;
+              comp:incidentId ?incidentId ;
+              comp:incidentDate ?incidentDate ;
+              comp:incidentSeverity ?severity ;
+              comp:affectedRecordsCount ?affectedRecords ;
+              comp:notificationRequired ?notificationRequired .
+}
+ORDER BY DESC(?incidentDate) DESC(?affectedRecords)
+
+# ------------------------------------------------------------------------------
+# Q9: High-severity breaches requiring regulatory notification (GDPR 72h rule)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?incidentId ?incidentDate ?severity ?affectedRecords ?hoursSinceIncident
+WHERE {
+    ?incident a comp:DataBreachIncident ;
+              comp:incidentId ?incidentId ;
+              comp:incidentDate ?incidentDate ;
+              comp:incidentSeverity ?severity ;
+              comp:affectedRecordsCount ?affectedRecords ;
+              comp:notificationRequired true .
+    BIND((NOW() - ?incidentDate) * 24 AS ?hoursSinceIncident)
+    FILTER (?severity IN ("HIGH", "CRITICAL"))
+}
+ORDER BY ?hoursSinceIncident
+
+# ------------------------------------------------------------------------------
+# Q10: Audit trail for specific data subject (GDPR accountability)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?auditTimestamp ?action ?user
+WHERE {
+    ?customer cus:email "john.doe@example.com" .
+    ?activity comp:concernsDataSubject ?customer ;
+              comp:hasAuditLog ?auditLog .
+    ?auditLog comp:auditTimestamp ?auditTimestamp ;
+              comp:auditAction ?action ;
+              comp:auditUser ?user .
+}
+ORDER BY DESC(?auditTimestamp)
+
+# ------------------------------------------------------------------------------
+# Q11: Data retention compliance check
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?dataCategory ?retentionDays ?retentionJustification
+WHERE {
+    ?category a comp:DataCategory ;
+              comp:dataCategoryName ?dataCategory ;
+              comp:hasRetentionPolicy ?policy .
+    ?policy comp:retentionPeriodDays ?retentionDays ;
+            comp:retentionJustification ?retentionJustification .
+}
+ORDER BY DESC(?retentionDays)
+
+# ------------------------------------------------------------------------------
+# Q12: Cross-border data transfers compliance (GDPR Chapter V)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?activityName ?destination ?transferMechanism
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:activityName ?activityName ;
+              comp:involvesDataTransfer ?transfer .
+    ?transfer comp:transferDestination ?destination ;
+              comp:transferMechanism ?transferMechanism .
+}
+
+# ------------------------------------------------------------------------------
+# Q13: Consent method distribution (compliance with GDPR explicit consent)
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?consentMethod (COUNT(?consent) AS ?count) 
+       (COUNT(?consent) * 100.0 / ?total AS ?percentage)
+WHERE {
+    {
+        SELECT (COUNT(?c) AS ?total) WHERE { ?c a comp:Consent }
+    }
+    ?consent a comp:Consent ;
+             comp:consentMethod ?consentMethod ;
+             comp:consentStatus "ACTIVE" .
+}
+GROUP BY ?consentMethod ?total
+ORDER BY DESC(?count)
+
+# ------------------------------------------------------------------------------
+# Q14: Data controllers and their processing activities
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?controllerName (COUNT(?activity) AS ?activityCount)
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:controlledBy ?controller .
+    ?controller rdfs:label ?controllerName .
+}
+GROUP BY ?controllerName
+ORDER BY DESC(?activityCount)
+
+# ------------------------------------------------------------------------------
+# Q15: Compliance framework coverage analysis
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?framework (COUNT(?activity) AS ?activitiesUnderFramework)
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:subjectToFramework ?frameworkNode .
+    ?frameworkNode comp:frameworkName ?framework .
+}
+GROUP BY ?framework
+ORDER BY DESC(?activitiesUnderFramework)
+
+# ------------------------------------------------------------------------------
+# Q16: Data subjects with multiple right exercise requests
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+PREFIX cus: <http://enterprise.org/ontology/customer#>
+
+SELECT ?email (COUNT(?request) AS ?requestCount)
+WHERE {
+    ?customer cus:email ?email .
+    ?request a comp:RightExerciseRequest ;
+             comp:submittedBy ?customer .
+}
+GROUP BY ?email
+HAVING (COUNT(?request) > 1)
+ORDER BY DESC(?requestCount)
+
+# ------------------------------------------------------------------------------
+# Q17: Privacy notice coverage for processing activities
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?activityName ?hasPrivacyNotice
+WHERE {
+    ?activity a comp:ProcessingActivity ;
+              comp:activityName ?activityName .
+    OPTIONAL {
+        ?activity comp:hasPrivacyNotice ?notice .
+    }
+    BIND(IF(BOUND(?notice), "Yes", "MISSING") AS ?hasPrivacyNotice)
+}
+ORDER BY ?hasPrivacyNotice ?activityName
+
+# ------------------------------------------------------------------------------
+# Q18: Consent granularity analysis - multi-purpose consents
+# ------------------------------------------------------------------------------
+PREFIX comp: <http://enterprise.org/ontology/compliance#>
+
+SELECT ?consentId (COUNT(?purpose) AS ?purposeCount)
+       (GROUP_CONCAT(?purposeName; separator=", ") AS ?purposes)
+WHERE {
+    ?consent a comp:Consent ;
+             comp:consentId ?consentId ;
+             comp:consentFor ?purposeNode .
+    ?purposeNode comp:purposeName ?purposeName .
+}
+GROUP BY ?consentId
+ORDER BY DESC(?purposeCount)

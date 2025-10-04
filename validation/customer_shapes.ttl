@@ -1,0 +1,253 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cus: <http://enterprise.org/ontology/customer#> .
+@prefix comp: <http://enterprise.org/ontology/compliance#> .
+@prefix : <http://enterprise.org/validation/customer#> .
+
+# Shape for Individual Customer
+:IndividualCustomerShape
+    a sh:NodeShape ;
+    sh:targetClass cus:IndividualCustomer ;
+    sh:property [
+        sh:path cus:customerId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^CUS-[0-9]{6}$" ;
+        sh:message "Customer ID must be in format CUS-XXXXXX (6 digits)" ;
+    ] ;
+    sh:property [
+        sh:path cus:firstName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "First name is required and must be 1-100 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:lastName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Last name is required and must be 1-100 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:email ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email address is required" ;
+    ] ;
+    sh:property [
+        sh:path cus:dateOfBirth ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Date of birth must be a valid date" ;
+    ] ;
+    sh:property [
+        sh:path cus:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\+?[0-9]{7,15}$" ;
+        sh:message "Phone number must be 7-15 digits with optional + prefix" ;
+    ] ;
+    sh:property [
+        sh:path cus:customerStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "ACTIVE" "INACTIVE" "SUSPENDED" "CLOSED" ) ;
+        sh:message "Customer status must be ACTIVE, INACTIVE, SUSPENDED, or CLOSED" ;
+    ] ;
+    sh:property [
+        sh:path cus:registrationDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:lessThanOrEquals cus:lastActivityDate ;
+        sh:message "Registration date is required and must be before last activity date" ;
+    ] ;
+    sh:property [
+        sh:path cus:hasConsent ;
+        sh:minCount 1 ;
+        sh:class comp:Consent ;
+        sh:message "Customer must have at least one consent record" ;
+    ] .
+
+# Shape for Business Customer
+:BusinessCustomerShape
+    a sh:NodeShape ;
+    sh:targetClass cus:BusinessCustomer ;
+    sh:property [
+        sh:path cus:customerId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^ORG-[0-9]{6}$" ;
+        sh:message "Business Customer ID must be in format ORG-XXXXXX (6 digits)" ;
+    ] ;
+    sh:property [
+        sh:path cus:organizationName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:maxLength 200 ;
+        sh:message "Organization name is required and must be 2-200 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:email ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email address is required" ;
+    ] ;
+    sh:property [
+        sh:path cus:customerStatus ;
+        sh:minCount 1 ;
+        sh:in ( "ACTIVE" "INACTIVE" "SUSPENDED" "CLOSED" ) ;
+        sh:message "Customer status must be ACTIVE, INACTIVE, SUSPENDED, or CLOSED" ;
+    ] .
+
+# Shape for Address
+:AddressShape
+    a sh:NodeShape ;
+    sh:targetClass cus:Address ;
+    sh:property [
+        sh:path cus:streetAddress ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Street address is required and must be 5-200 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:city ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "City is required and must be 2-100 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:postalCode ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 20 ;
+        sh:message "Postal code is required and must be 3-20 characters" ;
+    ] ;
+    sh:property [
+        sh:path cus:country ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{2}$" ;
+        sh:message "Country must be a valid 2-letter ISO country code" ;
+    ] .
+
+# Shape for Transaction
+:TransactionShape
+    a sh:NodeShape ;
+    sh:targetClass cus:Transaction ;
+    sh:property [
+        sh:path cus:interactionDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Transaction date is required" ;
+    ] ;
+    sh:property [
+        sh:path cus:transactionAmount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message "Transaction amount is required and must be positive" ;
+    ] ;
+    sh:property [
+        sh:path cus:currency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{3}$" ;
+        sh:message "Currency must be a valid 3-letter ISO currency code (e.g., USD, EUR, GBP)" ;
+    ] ;
+    sh:property [
+        sh:path cus:interactionType ;
+        sh:minCount 1 ;
+        sh:in ( "PURCHASE" "REFUND" "PAYMENT" "SUBSCRIPTION" "RENEWAL" ) ;
+        sh:message "Transaction type must be PURCHASE, REFUND, PAYMENT, SUBSCRIPTION, or RENEWAL" ;
+    ] .
+
+# Shape for Customer Profile
+:CustomerProfileShape
+    a sh:NodeShape ;
+    sh:targetClass cus:CustomerProfile ;
+    sh:property [
+        sh:path cus:lifetimeValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Lifetime value must be non-negative" ;
+    ] .
+
+# Shape for Customer Segment
+:CustomerSegmentShape
+    a sh:NodeShape ;
+    sh:targetClass cus:CustomerSegment ;
+    sh:property [
+        sh:path cus:segmentName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:message "Segment name is required and must be 3-100 characters" ;
+    ] .
+
+# Closed World Validation - ensure customers belong to valid segments
+:CustomerSegmentMembershipShape
+    a sh:NodeShape ;
+    sh:targetClass cus:Customer ;
+    sh:property [
+        sh:path cus:belongsToSegment ;
+        sh:class cus:CustomerSegment ;
+        sh:message "Customer segment reference must be valid" ;
+    ] .
+
+# Data Quality Rule: Email Uniqueness (using SPARQL-based constraint)
+:EmailUniquenessShape
+    a sh:NodeShape ;
+    sh:targetClass cus:Customer ;
+    sh:sparql [
+        sh:message "Email address must be unique across all customers" ;
+        sh:prefixes cus: ;
+        sh:select """
+            SELECT $this ?email
+            WHERE {
+                $this cus:email ?email .
+                FILTER EXISTS {
+                    ?other cus:email ?email .
+                    FILTER (?other != $this)
+                }
+            }
+        """ ;
+    ] .
+
+# Business Rule: Active customers must have recent activity
+:ActiveCustomerActivityShape
+    a sh:NodeShape ;
+    sh:targetClass cus:Customer ;
+    sh:sparql [
+        sh:message "Active customers must have activity within last 365 days" ;
+        sh:prefixes cus: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cus:customerStatus "ACTIVE" ;
+                      cus:lastActivityDate ?lastActivity .
+                BIND(NOW() - ?lastActivity AS ?daysSinceActivity)
+                FILTER (?daysSinceActivity > 365)
+            }
+        """ ;
+    ] .

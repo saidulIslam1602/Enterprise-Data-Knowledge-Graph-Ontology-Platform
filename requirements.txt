@@ -1,0 +1,83 @@
+# Core RDF and Semantic Web Libraries
+rdflib==7.0.0
+rdflib-jsonld==0.6.2
+owlrl==6.0.2
+pyshacl==0.25.0
+
+# SPARQL and Triplestore Clients
+SPARQLWrapper==2.0.0
+
+# Web Framework and API
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.3
+
+# Database and Storage
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+
+# Data Validation and Quality
+jsonschema==4.20.0
+cerberus==1.3.5
+
+# Compliance and Governance
+cryptography==42.0.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Logging and Monitoring
+python-json-logger==2.0.7
+structlog==24.1.0
+
+# HTTP and Networking
+httpx==0.26.0
+requests==2.31.0
+
+# Configuration
+python-dotenv==1.0.1
+pyyaml==6.0.1
+
+# Caching
+redis==5.0.1
+
+# Task Queue
+celery==5.3.6
+
+# Testing
+pytest==8.0.0
+pytest-cov==4.1.0
+pytest-asyncio==0.23.3
+faker==22.6.0
+
+# Code Quality
+black==24.1.1
+flake8==7.0.0
+pylint==3.0.3
+mypy==1.8.0
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.5.6
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2024.1
+click==8.1.7
+tqdm==4.66.1
+
+# Graph Visualization
+networkx==3.2.1
+matplotlib==3.8.2
+
+# Data Export
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# Data Generation
+faker==22.6.0
+tqdm==4.66.1

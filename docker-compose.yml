@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # Apache Jena Fuseki Triplestore
+  fuseki:
+    image: stain/jena-fuseki:latest
+    container_name: enterprise_fuseki
+    ports:
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=admin123
+      - JVM_ARGS=-Xmx2g
+    volumes:
+      - fuseki_data:/fuseki
+      - ./ontologies:/ontologies:ro
+    networks:
+      - ontology_network
+
+  # PostgreSQL for metadata and audit logs
+  postgres:
+    image: postgres:16-alpine
+    container_name: enterprise_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ontology_user
+      - POSTGRES_PASSWORD=ontology_pass
+      - POSTGRES_DB=ontology_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ontology_network
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: enterprise_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ontology_network
+
+  # API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: enterprise_api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - TRIPLESTORE_HOST=fuseki
+      - DATABASE_URL=postgresql://ontology_user:ontology_pass@postgres:5432/ontology_db
+      - REDIS_HOST=redis
+    depends_on:
+      - fuseki
+      - postgres
+      - redis
+    volumes:
+      - ./ontologies:/app/ontologies:ro
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - ontology_network
+
+  # Dashboard
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: enterprise_dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/v1
+      - REACT_APP_SPARQL_ENDPOINT=http://localhost:3030/enterprise_kg/query
+    depends_on:
+      - api
+    networks:
+      - ontology_network
+
+volumes:
+  fuseki_data:
+  postgres_data:
+  redis_data:
+
+networks:
+  ontology_network:
+    driver: bridge

@@ -1,0 +1,334 @@
+# ==============================================================================
+# DATA LINEAGE & PROVENANCE QUERIES
+# Track data transformations, dependencies, and impact analysis
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Q1: Complete lineage trace for a specific data asset (upstream dependencies)
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?asset ?assetName ?sourceAsset ?sourceAssetName ?transformation
+WHERE {
+    ?asset lin:assetName "customer_master_table" ;
+           lin:derivedFrom+ ?sourceAsset .
+    ?sourceAsset lin:assetName ?sourceAssetName .
+    OPTIONAL {
+        ?asset lin:transformedBy ?transformation .
+    }
+}
+
+# ------------------------------------------------------------------------------
+# Q2: Downstream impact analysis - find all assets derived from source
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?derivedAsset ?assetName ?transformationType ?createdDate
+WHERE {
+    ?sourceAsset lin:assetName "raw_customer_data" .
+    ?derivedAsset lin:derivedFrom+ ?sourceAsset ;
+                  lin:assetName ?assetName ;
+                  lin:createdDate ?createdDate .
+    OPTIONAL {
+        ?derivedAsset lin:transformedBy ?transformation .
+        ?transformation lin:transformationType ?transformationType .
+    }
+}
+ORDER BY ?createdDate
+
+# ------------------------------------------------------------------------------
+# Q3: Data pipeline execution status monitoring
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?pipelineName ?transformation ?executionTime ?status ?duration
+WHERE {
+    ?pipeline a lin:DataPipeline ;
+              lin:pipelineName ?pipelineName .
+    ?transformation lin:partOfPipeline ?pipeline ;
+                    lin:executionTime ?executionTime ;
+                    lin:executionStatus ?status ;
+                    lin:executionDuration ?duration .
+}
+ORDER BY ?pipelineName ?executionTime
+
+# ------------------------------------------------------------------------------
+# Q4: Failed transformations for troubleshooting
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?transformation ?transformationType ?executionTime ?input ?output
+WHERE {
+    ?transformation a lin:DataTransformation ;
+                    lin:transformationType ?transformationType ;
+                    lin:executionTime ?executionTime ;
+                    lin:executionStatus "FAILED" .
+    OPTIONAL { ?transformation lin:usesInput ?input }
+    OPTIONAL { ?transformation lin:producesOutput ?output }
+}
+ORDER BY DESC(?executionTime)
+
+# ------------------------------------------------------------------------------
+# Q5: Data quality metrics by dataset
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName ?metricName ?metricValue ?metricThreshold ?status
+WHERE {
+    ?asset a lin:Dataset ;
+           lin:assetName ?assetName ;
+           lin:hasQualityMetric ?metric .
+    ?metric lin:metricName ?metricName ;
+            lin:metricValue ?metricValue ;
+            lin:metricThreshold ?metricThreshold .
+    BIND(IF(?metricValue >= ?metricThreshold, "PASS", "FAIL") AS ?status)
+}
+ORDER BY ?assetName ?metricName
+
+# ------------------------------------------------------------------------------
+# Q6: Data asset ownership and stewardship mapping
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?assetName ?ownerName ?stewardName
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName .
+    OPTIONAL {
+        ?asset lin:ownedBy ?owner .
+        ?owner foaf:name ?ownerName .
+    }
+    OPTIONAL {
+        ?asset lin:governedBy ?steward .
+        ?steward foaf:name ?stewardName .
+    }
+}
+ORDER BY ?assetName
+
+# ------------------------------------------------------------------------------
+# Q7: Data transformation dependency chain
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?transformation1 ?transformation2 ?pipelineName
+WHERE {
+    ?transformation1 lin:followedBy ?transformation2 ;
+                     lin:partOfPipeline ?pipeline .
+    ?pipeline lin:pipelineName ?pipelineName .
+}
+
+# ------------------------------------------------------------------------------
+# Q8: Most complex data assets (highest number of dependencies)
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName (COUNT(?dependency) AS ?dependencyCount)
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName ;
+           lin:dependsOn ?dependency .
+}
+GROUP BY ?assetName
+ORDER BY DESC(?dependencyCount)
+
+# ------------------------------------------------------------------------------
+# Q9: Data freshness monitoring - recently updated assets
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName ?lastModifiedDate ?hoursSinceUpdate
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName ;
+           lin:lastModifiedDate ?lastModifiedDate .
+    BIND((NOW() - ?lastModifiedDate) * 24 AS ?hoursSinceUpdate)
+}
+ORDER BY ?hoursSinceUpdate
+
+# ------------------------------------------------------------------------------
+# Q10: Data source inventory
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?sourceSystem ?sourceType (COUNT(?asset) AS ?assetCount)
+WHERE {
+    ?source a lin:DataSource ;
+            lin:sourceSystem ?sourceSystem .
+    ?asset lin:hasSource ?source .
+    BIND(IF(EXISTS { ?source a lin:Database }, "Database",
+         IF(EXISTS { ?source a lin:APIEndpoint }, "API",
+         IF(EXISTS { ?source a lin:FileSystem }, "File", "Other"))) AS ?sourceType)
+}
+GROUP BY ?sourceSystem ?sourceType
+ORDER BY DESC(?assetCount)
+
+# ------------------------------------------------------------------------------
+# Q11: ETL process performance analysis
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?pipelineName 
+       (COUNT(?etl) AS ?etlStepCount)
+       (AVG(?duration) AS ?avgDuration)
+       (MAX(?duration) AS ?maxDuration)
+       (MIN(?duration) AS ?minDuration)
+WHERE {
+    ?etl a lin:ETLProcess ;
+         lin:partOfPipeline ?pipeline ;
+         lin:executionDuration ?duration ;
+         lin:executionStatus "SUCCESS" .
+    ?pipeline lin:pipelineName ?pipelineName .
+}
+GROUP BY ?pipelineName
+ORDER BY DESC(?avgDuration)
+
+# ------------------------------------------------------------------------------
+# Q12: Data field lineage - column-level tracking
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?datasetName ?fieldName ?dataType ?isNullable ?sourceField
+WHERE {
+    ?dataset a lin:Dataset ;
+             lin:assetName ?datasetName ;
+             lin:containsField ?field .
+    ?field lin:fieldName ?fieldName ;
+           lin:dataType ?dataType ;
+           lin:isNullable ?isNullable .
+    OPTIONAL {
+        ?field lin:derivedFrom ?sourceField .
+    }
+}
+ORDER BY ?datasetName ?fieldName
+
+# ------------------------------------------------------------------------------
+# Q13: Data transformation rules catalog
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?ruleName ?ruleExpression ?transformationType
+WHERE {
+    ?transformation a lin:DataTransformation ;
+                    lin:transformationType ?transformationType ;
+                    lin:appliesRule ?rule .
+    ?rule lin:ruleName ?ruleName ;
+          lin:ruleExpression ?ruleExpression .
+}
+
+# ------------------------------------------------------------------------------
+# Q14: Data version history tracking
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName ?versionNumber ?versionDate ?checksum
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName ;
+           lin:hasVersion ?version .
+    ?version lin:versionNumber ?versionNumber ;
+             lin:versionDate ?versionDate ;
+             lin:checksum ?checksum .
+}
+ORDER BY ?assetName DESC(?versionDate)
+
+# ------------------------------------------------------------------------------
+# Q15: Pipeline execution schedule monitoring
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?pipelineName ?schedule ?lastExecution ?nextExecution
+WHERE {
+    ?pipeline a lin:DataPipeline ;
+              lin:pipelineName ?pipelineName ;
+              lin:pipelineSchedule ?schedule .
+    OPTIONAL {
+        SELECT ?pipeline (MAX(?execTime) AS ?lastExecution)
+        WHERE {
+            ?transformation lin:partOfPipeline ?pipeline ;
+                           lin:executionTime ?execTime .
+        }
+        GROUP BY ?pipeline
+    }
+}
+ORDER BY ?pipelineName
+
+# ------------------------------------------------------------------------------
+# Q16: Data enrichment processes and their sources
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?enrichmentProcess ?input ?output ?executionStatus
+WHERE {
+    ?enrichmentProcess a lin:DataEnrichment ;
+                       lin:usesInput ?inputAsset ;
+                       lin:producesOutput ?outputAsset ;
+                       lin:executionStatus ?executionStatus .
+    ?inputAsset lin:assetName ?input .
+    ?outputAsset lin:assetName ?output .
+}
+
+# ------------------------------------------------------------------------------
+# Q17: Critical path analysis - assets with no backups
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName ?assetDescription
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName ;
+           lin:assetDescription ?assetDescription .
+    FILTER NOT EXISTS {
+        ?backup lin:derivedFrom ?asset .
+        FILTER(CONTAINS(STR(?backup), "backup"))
+    }
+}
+
+# ------------------------------------------------------------------------------
+# Q18: Data aggregation processes summary
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?aggregation (COUNT(?input) AS ?inputCount) ?output
+WHERE {
+    ?aggregation a lin:DataAggregation ;
+                 lin:usesInput ?inputAsset ;
+                 lin:producesOutput ?outputAsset .
+    ?outputAsset lin:assetName ?output .
+}
+GROUP BY ?aggregation ?output
+HAVING (COUNT(?input) > 1)
+
+# ------------------------------------------------------------------------------
+# Q19: Transformation logic documentation
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?assetName ?transformationType ?transformationLogic
+WHERE {
+    ?asset a lin:DataAsset ;
+           lin:assetName ?assetName ;
+           lin:transformedBy ?transformation .
+    ?transformation lin:transformationType ?transformationType ;
+                    lin:transformationLogic ?transformationLogic .
+}
+
+# ------------------------------------------------------------------------------
+# Q20: Impact analysis report for schema changes
+# ------------------------------------------------------------------------------
+PREFIX lin: <http://enterprise.org/ontology/lineage#>
+
+SELECT ?impactedAsset ?assetName ?lineageDepth ?impactedDownstream
+WHERE {
+    ?sourceAsset lin:assetName "customer_schema" .
+    ?impactedAsset lin:dependsOn+ ?sourceAsset ;
+                   lin:assetName ?assetName ;
+                   lin:hasLineageGraph ?lineageGraph .
+    ?lineageGraph lin:lineageDepth ?lineageDepth .
+    OPTIONAL {
+        ?impactedAsset lin:hasImpactAnalysis ?impact .
+        ?impact lin:impactedAssets ?impactedDownstream .
+    }
+}
+ORDER BY ?lineageDepth

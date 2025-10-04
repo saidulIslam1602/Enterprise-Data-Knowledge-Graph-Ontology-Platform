@@ -1,0 +1,345 @@
+@prefix : <http://enterprise.org/ontology/company#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@base <http://enterprise.org/ontology/company> .
+
+<http://enterprise.org/ontology/company> rdf:type owl:Ontology ;
+    dct:title "Enterprise Company Ontology"@en ;
+    dct:description "Ontology for modeling company hierarchies, classifications, and business relationships"@en ;
+    dct:created "2025-10-04"^^xsd:date ;
+    dct:creator "Enterprise Data Team" ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://enterprise.org/ontology/company#Company
+:Company rdf:type owl:Class ;
+    rdfs:label "Company"@en ;
+    rdfs:comment "A business organization or corporation"@en ;
+    rdfs:subClassOf foaf:Organization .
+
+###  http://enterprise.org/ontology/company#PublicCompany
+:PublicCompany rdf:type owl:Class ;
+    rdfs:label "Public Company"@en ;
+    rdfs:comment "A publicly traded company"@en ;
+    rdfs:subClassOf :Company .
+
+###  http://enterprise.org/ontology/company#PrivateCompany
+:PrivateCompany rdf:type owl:Class ;
+    rdfs:label "Private Company"@en ;
+    rdfs:comment "A privately held company"@en ;
+    rdfs:subClassOf :Company .
+
+###  http://enterprise.org/ontology/company#Subsidiary
+:Subsidiary rdf:type owl:Class ;
+    rdfs:label "Subsidiary"@en ;
+    rdfs:comment "A company controlled by another company"@en ;
+    rdfs:subClassOf :Company .
+
+###  http://enterprise.org/ontology/company#Industry
+:Industry rdf:type owl:Class ;
+    rdfs:label "Industry"@en ;
+    rdfs:comment "A category of economic activity"@en .
+
+###  http://enterprise.org/ontology/company#Sector
+:Sector rdf:type owl:Class ;
+    rdfs:label "Sector"@en ;
+    rdfs:comment "A broad category of industries"@en .
+
+###  http://enterprise.org/ontology/company#MarketSegment
+:MarketSegment rdf:type owl:Class ;
+    rdfs:label "Market Segment"@en ;
+    rdfs:comment "A specific market category or segment"@en .
+
+###  http://enterprise.org/ontology/company#BusinessUnit
+:BusinessUnit rdf:type owl:Class ;
+    rdfs:label "Business Unit"@en ;
+    rdfs:comment "A division or unit within a company"@en ;
+    rdfs:subClassOf org:OrganizationalUnit .
+
+###  http://enterprise.org/ontology/company#Location
+:Location rdf:type owl:Class ;
+    rdfs:label "Location"@en ;
+    rdfs:comment "A physical location or facility"@en .
+
+###  http://enterprise.org/ontology/company#Headquarters
+:Headquarters rdf:type owl:Class ;
+    rdfs:label "Headquarters"@en ;
+    rdfs:comment "The main office of a company"@en ;
+    rdfs:subClassOf :Location .
+
+###  http://enterprise.org/ontology/company#Branch
+:Branch rdf:type owl:Class ;
+    rdfs:label "Branch"@en ;
+    rdfs:comment "A branch office or location"@en ;
+    rdfs:subClassOf :Location .
+
+###  http://enterprise.org/ontology/company#BusinessRelationship
+:BusinessRelationship rdf:type owl:Class ;
+    rdfs:label "Business Relationship"@en ;
+    rdfs:comment "A relationship between business entities"@en .
+
+###  http://enterprise.org/ontology/company#Partnership
+:Partnership rdf:type owl:Class ;
+    rdfs:label "Partnership"@en ;
+    rdfs:comment "A partnership agreement between companies"@en ;
+    rdfs:subClassOf :BusinessRelationship .
+
+###  http://enterprise.org/ontology/company#SupplierRelationship
+:SupplierRelationship rdf:type owl:Class ;
+    rdfs:label "Supplier Relationship"@en ;
+    rdfs:comment "A supplier-customer relationship"@en ;
+    rdfs:subClassOf :BusinessRelationship .
+
+###  http://enterprise.org/ontology/company#CompanyMetrics
+:CompanyMetrics rdf:type owl:Class ;
+    rdfs:label "Company Metrics"@en ;
+    rdfs:comment "Financial and operational metrics for a company"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://enterprise.org/ontology/company#belongsToIndustry
+:belongsToIndustry rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :Industry ;
+    rdfs:label "belongs to industry"@en .
+
+###  http://enterprise.org/ontology/company#belongsToSector
+:belongsToSector rdf:type owl:ObjectProperty ;
+    rdfs:domain :Industry ;
+    rdfs:range :Sector ;
+    rdfs:label "belongs to sector"@en .
+
+###  http://enterprise.org/ontology/company#operatesInMarket
+:operatesInMarket rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :MarketSegment ;
+    rdfs:label "operates in market"@en .
+
+###  http://enterprise.org/ontology/company#hasSubsidiary
+:hasSubsidiary rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :Subsidiary ;
+    rdfs:label "has subsidiary"@en .
+
+###  http://enterprise.org/ontology/company#parentCompany
+:parentCompany rdf:type owl:ObjectProperty ;
+    rdfs:domain :Subsidiary ;
+    rdfs:range :Company ;
+    rdfs:label "parent company"@en ;
+    owl:inverseOf :hasSubsidiary .
+
+###  http://enterprise.org/ontology/company#hasBusinessUnit
+:hasBusinessUnit rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :BusinessUnit ;
+    rdfs:label "has business unit"@en .
+
+###  http://enterprise.org/ontology/company#hasLocation
+:hasLocation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :Location ;
+    rdfs:label "has location"@en .
+
+###  http://enterprise.org/ontology/company#hasHeadquarters
+:hasHeadquarters rdf:type owl:ObjectProperty ,
+                          owl:FunctionalProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :Headquarters ;
+    rdfs:label "has headquarters"@en ;
+    rdfs:subPropertyOf :hasLocation .
+
+###  http://enterprise.org/ontology/company#hasBranch
+:hasBranch rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :Branch ;
+    rdfs:label "has branch"@en ;
+    rdfs:subPropertyOf :hasLocation .
+
+###  http://enterprise.org/ontology/company#hasRelationship
+:hasRelationship rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :BusinessRelationship ;
+    rdfs:label "has relationship"@en .
+
+###  http://enterprise.org/ontology/company#relatedToCompany
+:relatedToCompany rdf:type owl:ObjectProperty ;
+    rdfs:domain :BusinessRelationship ;
+    rdfs:range :Company ;
+    rdfs:label "related to company"@en .
+
+###  http://enterprise.org/ontology/company#hasMetrics
+:hasMetrics rdf:type owl:ObjectProperty ;
+    rdfs:domain :Company ;
+    rdfs:range :CompanyMetrics ;
+    rdfs:label "has metrics"@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://enterprise.org/ontology/company#companyId
+:companyId rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "company ID"@en ;
+    rdfs:comment "Unique identifier for a company"@en .
+
+###  http://enterprise.org/ontology/company#legalName
+:legalName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "legal name"@en ;
+    rdfs:comment "Official legal name of the company"@en .
+
+###  http://enterprise.org/ontology/company#tradingName
+:tradingName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "trading name"@en ;
+    rdfs:comment "Name under which the company trades"@en .
+
+###  http://enterprise.org/ontology/company#registrationNumber
+:registrationNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "registration number"@en .
+
+###  http://enterprise.org/ontology/company#taxId
+:taxId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "tax ID"@en .
+
+###  http://enterprise.org/ontology/company#foundedDate
+:foundedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:date ;
+    rdfs:label "founded date"@en .
+
+###  http://enterprise.org/ontology/company#companyStatus
+:companyStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "company status"@en ;
+    rdfs:comment "Status: ACTIVE, DISSOLVED, DORMANT, LIQUIDATION"@en .
+
+###  http://enterprise.org/ontology/company#employeeCount
+:employeeCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:integer ;
+    rdfs:label "employee count"@en .
+
+###  http://enterprise.org/ontology/company#annualRevenue
+:annualRevenue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "annual revenue"@en .
+
+###  http://enterprise.org/ontology/company#website
+:website rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Company ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "website"@en .
+
+###  http://enterprise.org/ontology/company#stockSymbol
+:stockSymbol rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PublicCompany ;
+    rdfs:range xsd:string ;
+    rdfs:label "stock symbol"@en .
+
+###  http://enterprise.org/ontology/company#marketCap
+:marketCap rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PublicCompany ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "market capitalization"@en .
+
+###  http://enterprise.org/ontology/company#industryCode
+:industryCode rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Industry ;
+    rdfs:range xsd:string ;
+    rdfs:label "industry code"@en ;
+    rdfs:comment "Standard industry classification code (e.g., NAICS, SIC)"@en .
+
+###  http://enterprise.org/ontology/company#industryName
+:industryName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Industry ;
+    rdfs:range xsd:string ;
+    rdfs:label "industry name"@en .
+
+###  http://enterprise.org/ontology/company#sectorName
+:sectorName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Sector ;
+    rdfs:range xsd:string ;
+    rdfs:label "sector name"@en .
+
+###  http://enterprise.org/ontology/company#locationAddress
+:locationAddress rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Location ;
+    rdfs:range xsd:string ;
+    rdfs:label "location address"@en .
+
+###  http://enterprise.org/ontology/company#locationCity
+:locationCity rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Location ;
+    rdfs:range xsd:string ;
+    rdfs:label "location city"@en .
+
+###  http://enterprise.org/ontology/company#locationCountry
+:locationCountry rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Location ;
+    rdfs:range xsd:string ;
+    rdfs:label "location country"@en .
+
+###  http://enterprise.org/ontology/company#relationshipType
+:relationshipType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BusinessRelationship ;
+    rdfs:range xsd:string ;
+    rdfs:label "relationship type"@en .
+
+###  http://enterprise.org/ontology/company#relationshipStartDate
+:relationshipStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BusinessRelationship ;
+    rdfs:range xsd:date ;
+    rdfs:label "relationship start date"@en .
+
+#################################################################
+#    Individuals (Examples)
+#################################################################
+
+###  http://enterprise.org/ontology/company#TechnologySector
+:TechnologySector rdf:type owl:NamedIndividual ,
+                           :Sector ;
+    :sectorName "Technology" ;
+    rdfs:label "Technology Sector"@en .
+
+###  http://enterprise.org/ontology/company#FinancialSector
+:FinancialSector rdf:type owl:NamedIndividual ,
+                          :Sector ;
+    :sectorName "Financial Services" ;
+    rdfs:label "Financial Sector"@en .
+
+###  http://enterprise.org/ontology/company#HealthcareSector
+:HealthcareSector rdf:type owl:NamedIndividual ,
+                           :Sector ;
+    :sectorName "Healthcare" ;
+    rdfs:label "Healthcare Sector"@en .
+
+###  http://enterprise.org/ontology/company#SoftwareIndustry
+:SoftwareIndustry rdf:type owl:NamedIndividual ,
+                           :Industry ;
+    :industryName "Software Development" ;
+    :industryCode "5112" ;
+    :belongsToSector :TechnologySector ;
+    rdfs:label "Software Industry"@en .

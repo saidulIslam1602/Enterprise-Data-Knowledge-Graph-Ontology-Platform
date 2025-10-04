@@ -1,0 +1,291 @@
+@prefix : <http://enterprise.org/ontology/glossary#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@base <http://enterprise.org/ontology/glossary> .
+
+<http://enterprise.org/ontology/glossary> rdf:type owl:Ontology ;
+    dct:title "Enterprise Business Glossary"@en ,
+              "Bedriftens Forretningsordliste"@no ;
+    dct:description "SKOS-based business glossary and controlled vocabularies for enterprise data management"@en ,
+                    "SKOS-basert forretningsordliste og kontrollerte vokabularer for bedriftsdatastyring"@no ;
+    dct:created "2025-10-04"^^xsd:date ;
+    dct:creator "Enterprise Data Team" ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "Multi-language business glossary supporting English and Norwegian as an example of international market support"@en .
+
+#################################################################
+#    Concept Schemes (Taxonomies)
+#################################################################
+
+###  Business Domain Taxonomy
+:BusinessDomainScheme a skos:ConceptScheme ;
+    skos:prefLabel "Business Domain Taxonomy"@en ,
+                   "Forretningsdomenetaksonomi"@no ;
+    dct:description "Top-level business domains and their hierarchical relationships"@en ,
+                    "Toppnivå forretningsdomener og deres hierarkiske relasjoner"@no .
+
+###  Data Quality Dimensions
+:DataQualityScheme a skos:ConceptScheme ;
+    skos:prefLabel "Data Quality Dimensions"@en ,
+                   "Datakvalitetsdimensjoner"@no ;
+    dct:description "Standard data quality dimensions and metrics"@en .
+
+###  Compliance Framework Taxonomy
+:ComplianceFrameworkScheme a skos:ConceptScheme ;
+    skos:prefLabel "Compliance Framework Taxonomy"@en ,
+                   "Taksonomi for overholdelsesrammer"@no ;
+    dct:description "Regulatory frameworks and compliance standards"@en .
+
+###  Industry Classification
+:IndustryClassificationScheme a skos:ConceptScheme ;
+    skos:prefLabel "Industry Classification"@en ,
+                   "Bransjeklassifisering"@no ;
+    dct:description "Industry and sector classification based on NACE/NAICS"@en .
+
+#################################################################
+#    Business Domain Concepts
+#################################################################
+
+### Customer Management
+:CustomerManagement a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:topConceptOf :BusinessDomainScheme ;
+    skos:prefLabel "Customer Management"@en ,
+                   "Kundeadministrasjon"@no ;
+    skos:altLabel "CRM"@en ,
+                  "Customer Relationship Management"@en ;
+    skos:definition "The practice of managing and analyzing customer interactions and data throughout the customer lifecycle"@en ,
+                    "Praksis for å administrere og analysere kundeinteraksjoner og data gjennom hele kundens livssyklus"@no ;
+    skos:scopeNote "Includes customer profiles, preferences, transactions, and relationships"@en ;
+    skos:example "Managing customer contact information, purchase history, and communication preferences"@en ;
+    skos:related :DataGovernance .
+
+### Data Governance
+:DataGovernance a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:topConceptOf :BusinessDomainScheme ;
+    skos:prefLabel "Data Governance"@en ,
+                   "Datastyrning"@no ;
+    skos:definition "The overall management of data availability, usability, integrity, and security"@en ,
+                    "Den overordnede styringen av datatilgjengelighet, brukervennlighet, integritet og sikkerhet"@no ;
+    skos:narrower :DataQuality , :DataStewardship , :DataLineage ;
+    skos:related :ComplianceManagement .
+
+### Data Quality
+:DataQuality a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:broader :DataGovernance ;
+    skos:prefLabel "Data Quality"@en ,
+                   "Datakvalitet"@no ;
+    skos:definition "The measure of data condition based on accuracy, completeness, consistency, and timeliness"@en ,
+                    "Målet for datatilstand basert på nøyaktighet, fullstendighet, konsistens og aktualitet"@no ;
+    skos:related :DataValidation .
+
+### Data Stewardship
+:DataStewardship a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:broader :DataGovernance ;
+    skos:prefLabel "Data Stewardship"@en ,
+                   "Dataforvalterskap"@no ;
+    skos:definition "The responsibility for managing data assets and ensuring data quality"@en ,
+                    "Ansvaret for å forvalte dataressurser og sikre datakvalitet"@no .
+
+### Data Lineage
+:DataLineage a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:broader :DataGovernance ;
+    skos:prefLabel "Data Lineage"@en ,
+                   "Dataopprinnelse"@no ;
+    skos:definition "The tracking of data from its origin through its transformations and usage"@en ,
+                    "Sporing av data fra opprinnelse gjennom transformasjoner og bruk"@no ;
+    skos:altLabel "Data Provenance"@en .
+
+### Compliance Management
+:ComplianceManagement a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:topConceptOf :BusinessDomainScheme ;
+    skos:prefLabel "Compliance Management"@en ,
+                   "Overholdelsesstyring"@no ;
+    skos:definition "Management of regulatory compliance and data protection requirements"@en ,
+                    "Styring av regulatorisk overholdelse og databeskyttelseskrav"@no ;
+    skos:narrower :GDPRCompliance , :DataPrivacy ;
+    skos:related :DataGovernance .
+
+### GDPR Compliance
+:GDPRCompliance a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:broader :ComplianceManagement ;
+    skos:prefLabel "GDPR Compliance"@en ,
+                   "GDPR-overholdelse"@no ;
+    skos:definition "Compliance with General Data Protection Regulation"@en ,
+                    "Overholdelse av General Data Protection Regulation (GDPR)"@no ;
+    skos:scopeNote "EU regulation for data protection and privacy"@en ;
+    skos:related :ConsentManagement , :DataSubjectRights .
+
+### Consent Management
+:ConsentManagement a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:prefLabel "Consent Management"@en ,
+                   "Samtykkestyring"@no ;
+    skos:definition "The process of obtaining, recording, and managing user consent for data processing"@en ,
+                    "Prosessen med å innhente, registrere og administrere brukersamtykke for databehandling"@no ;
+    skos:related :GDPRCompliance .
+
+### Data Subject Rights
+:DataSubjectRights a skos:Concept ;
+    skos:inScheme :BusinessDomainScheme ;
+    skos:prefLabel "Data Subject Rights"@en ,
+                   "Datasubjektrettigheter"@no ;
+    skos:definition "Rights granted to individuals regarding their personal data under GDPR"@en ,
+                    "Rettigheter gitt til enkeltpersoner angående deres personlige data under GDPR"@no ;
+    skos:narrower :RightToAccess , :RightToErasure , :RightToRectification .
+
+#################################################################
+#    Data Quality Dimensions
+#################################################################
+
+### Accuracy
+:Accuracy a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Accuracy"@en ,
+                   "Nøyaktighet"@no ;
+    skos:definition "The degree to which data correctly describes the real-world entity"@en ,
+                    "Graden der data korrekt beskriver den virkelige enheten"@no ;
+    skos:notation "DQ-ACC" .
+
+### Completeness
+:Completeness a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Completeness"@en ,
+                   "Fullstendighet"@no ;
+    skos:definition "The degree to which all required data is present"@en ,
+                    "Graden der alle nødvendige data er tilstede"@no ;
+    skos:notation "DQ-COM" .
+
+### Consistency
+:Consistency a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Consistency"@en ,
+                   "Konsistens"@no ;
+    skos:definition "The degree to which data is uniform across systems and datasets"@en ,
+                    "Graden der data er ensartet på tvers av systemer og datasett"@no ;
+    skos:notation "DQ-CON" .
+
+### Timeliness
+:Timeliness a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Timeliness"@en ,
+                   "Aktualitet"@no ;
+    skos:definition "The degree to which data is up-to-date and available when needed"@en ,
+                    "Graden der data er oppdatert og tilgjengelig når det trengs"@no ;
+    skos:notation "DQ-TIM" .
+
+### Validity
+:Validity a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Validity"@en ,
+                   "Gyldighet"@no ;
+    skos:definition "The degree to which data conforms to defined formats and business rules"@en ,
+                    "Graden der data overholder definerte formater og forretningsregler"@no ;
+    skos:notation "DQ-VAL" .
+
+### Uniqueness
+:Uniqueness a skos:Concept ;
+    skos:inScheme :DataQualityScheme ;
+    skos:topConceptOf :DataQualityScheme ;
+    skos:prefLabel "Uniqueness"@en ,
+                   "Unikhet"@no ;
+    skos:definition "The degree to which data is free from duplicates"@en ,
+                    "Graden der data er fri for duplikater"@no ;
+    skos:notation "DQ-UNQ" .
+
+#################################################################
+#    Industry Classifications (NACE - European Standard)
+#################################################################
+
+### Technology Sector
+:TechnologySector a skos:Concept ;
+    skos:inScheme :IndustryClassificationScheme ;
+    skos:topConceptOf :IndustryClassificationScheme ;
+    skos:prefLabel "Technology"@en ,
+                   "Teknologi"@no ;
+    skos:notation "NACE-J" ;
+    skos:definition "Information and communication technology sector"@en ;
+    skos:narrower :SoftwarePublishing , :DataProcessing .
+
+### Software Publishing
+:SoftwarePublishing a skos:Concept ;
+    skos:inScheme :IndustryClassificationScheme ;
+    skos:broader :TechnologySector ;
+    skos:prefLabel "Software Publishing"@en ,
+                   "Programvarepublisering"@no ;
+    skos:notation "NACE-58.2" ;
+    skos:definition "Publishing of software and related services"@en .
+
+### Financial Services
+:FinancialServices a skos:Concept ;
+    skos:inScheme :IndustryClassificationScheme ;
+    skos:topConceptOf :IndustryClassificationScheme ;
+    skos:prefLabel "Financial Services"@en ,
+                   "Finansielle tjenester"@no ;
+    skos:notation "NACE-K" ;
+    skos:definition "Financial and insurance activities"@en .
+
+#################################################################
+#    Collections for Practical Use
+#################################################################
+
+### Data Governance Terms Collection
+:DataGovernanceCollection a skos:Collection ;
+    skos:prefLabel "Data Governance Terms"@en ;
+    skos:member :DataGovernance , :DataQuality , :DataStewardship , 
+                :DataLineage , :MasterData , :Metadata .
+
+### Compliance Terms Collection
+:ComplianceCollection a skos:Collection ;
+    skos:prefLabel "Compliance and Privacy Terms"@en ;
+    skos:member :GDPRCompliance , :ConsentManagement , :DataSubjectRights ,
+                :DataPrivacy , :RightToAccess , :RightToErasure .
+
+### Norwegian Market Terms
+:NorwegianMarketCollection a skos:Collection ;
+    skos:prefLabel "Norwegian Market Specific Terms"@no ;
+    skos:scopeNote "Terms specific to Norwegian/Nordic data management and compliance"@en ;
+    skos:member :PersonvernForordningen , :Datatilsynet .
+
+### Datatilsynet (Norwegian Data Protection Authority)
+:Datatilsynet a skos:Concept ;
+    skos:prefLabel "Datatilsynet"@no ,
+                   "Norwegian Data Protection Authority"@en ;
+    skos:definition "Norwegian national data protection authority - example of GDPR enforcement agency"@en ,
+                    "Norges nasjonale tilsynsmyndighet for personvern og databeskyttelse"@no ;
+    skos:related :GDPRCompliance .
+
+### Personvernforordningen
+:PersonvernForordningen a skos:Concept ;
+    skos:prefLabel "Personvernforordningen"@no ,
+                   "GDPR (Norwegian)"@en ;
+    skos:altLabel "GDPR"@en ;
+    skos:definition "General Data Protection Regulation (Norwegian market example)"@en ,
+                    "Personvernforordningen (GDPR) slik den er implementert i Norge"@no .
+
+#################################################################
+#    Mapping Relations
+#################################################################
+
+# Example mapping to external vocabularies
+:CustomerManagement skos:exactMatch <http://www.wikidata.org/entity/Q1066707> ;
+    skos:closeMatch <http://dbpedia.org/resource/Customer_relationship_management> .
+
+:GDPRCompliance skos:exactMatch <http://www.wikidata.org/entity/Q897948> ;
+    skos:related <http://publications.europa.eu/resource/authority/eurovoc/3030> .
