@@ -50,5 +50,8 @@ htmlcov/
 # Docker
 .dockerignore
 
-# Node modules (if dashboard is added later)
+# Node modules and React dashboard
 node_modules/
+dashboard/node_modules/
+dashboard/dist/
+dashboard/*.local

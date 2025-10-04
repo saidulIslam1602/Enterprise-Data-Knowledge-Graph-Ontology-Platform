@@ -229,6 +229,27 @@ python scripts/generate_data.py
 3. **Test validation**: Try `validation/` SHACL shapes
 4. **Read full docs**: See `README.md` for complete documentation
 
+## 🎨 Optional: React Dashboard
+
+For a visual interface, start the React dashboard:
+
+```bash
+cd dashboard
+npm install
+npm run dev
+```
+
+Visit: http://localhost:3000
+
+**Dashboard Features:**
+- 📊 Interactive statistics visualization
+- 💻 SPARQL query editor with syntax highlighting
+- 🛡️ GDPR compliance monitoring
+- ✅ Data quality metrics
+- 🔍 Ontology class browser
+
+---
+
 ## Support
 
 This is a portfolio/demonstration project showcasing:

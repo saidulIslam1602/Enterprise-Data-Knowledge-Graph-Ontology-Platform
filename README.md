@@ -128,6 +128,14 @@ python src/api/server.py
 ```
 API available at: http://localhost:8000/docs (Swagger UI)
 
+### 8. Start React Dashboard (Optional)
+```bash
+cd dashboard
+npm install
+npm run dev
+```
+Dashboard available at: http://localhost:3000
+
 ## 📚 Usage Examples
 
 ### Generate Data with Real Sources
@@ -237,6 +245,36 @@ curl "http://localhost:8000/api/v1/compliance/report"
 # Check GDPR compliance for a customer
 curl "http://localhost:8000/api/v1/compliance/gdpr/CUS-000001"
 ```
+
+## 🎨 Interactive Dashboard
+
+A modern **React dashboard** provides a beautiful user interface:
+
+### Features
+- **📊 Dashboard Overview** - Real-time statistics and metrics visualization
+- **💻 SPARQL Query Interface** - Interactive editor with syntax highlighting and example queries
+- **🛡️ GDPR Compliance Monitoring** - Track consents, DSR requests, and alerts
+- **✅ Data Quality Metrics** - SHACL validation statistics and 6 quality dimensions
+- **🔍 Ontology Explorer** - Browse OWL classes and properties with search
+
+### Tech Stack
+- React 18 + Vite
+- TailwindCSS for styling
+- TanStack Query for data fetching
+- Recharts for visualizations
+- React Router for navigation
+
+### Quick Start
+```bash
+# Install dependencies
+cd dashboard
+npm install
+
+# Start development server
+npm run dev
+```
+
+Dashboard runs at: http://localhost:3000
 
 ## 🌐 Real Data Sources
 
