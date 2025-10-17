@@ -13,6 +13,21 @@ services:
     volumes:
       - fuseki_data:/fuseki
       - ./ontologies:/ontologies:ro
+      - ./data:/staging
+    networks:
+      - ontology_network
+
+  # Ontotext GraphDB (Alternative Triple Store)
+  graphdb:
+    image: ontotext/graphdb:10.7.0
+    container_name: enterprise_graphdb
+    ports:
+      - "7200:7200"
+    environment:
+      - GDB_HEAP_SIZE=2g
+    volumes:
+      - graphdb_data:/opt/graphdb/home
+      - ./ontologies:/root/graphdb-import:ro
     networks:
       - ontology_network
 
@@ -81,6 +96,7 @@ services:
 
 volumes:
   fuseki_data:
+  graphdb_data:
   postgres_data:
   redis_data:
 

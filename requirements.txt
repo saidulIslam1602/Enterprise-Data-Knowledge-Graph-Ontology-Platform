@@ -6,6 +6,7 @@ pyshacl==0.25.0
 
 # SPARQL and Triplestore Clients
 SPARQLWrapper==2.0.0
+rdflib-endpoint==0.5.0
 
 # Web Framework and API
 fastapi==0.109.0
@@ -16,6 +17,7 @@ pydantic-settings==2.1.0
 # Data Processing
 pandas==2.2.0
 numpy==1.26.3
+python-dateutil==2.8.2
 
 # Database and Storage
 sqlalchemy==2.0.25
