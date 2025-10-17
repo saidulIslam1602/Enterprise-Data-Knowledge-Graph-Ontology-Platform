@@ -16,6 +16,9 @@ from ..core.graph_manager import GraphManager
 from ..core.validator import DataValidator
 from ..compliance.monitor import ComplianceMonitor
 
+# Import new enhanced router
+from .kg_router import router as kg_router
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,9 +26,12 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(
     title="Enterprise Knowledge Graph & Ontology Platform",
-    description="Semantic data management platform with SPARQL, SHACL, and compliance monitoring",
-    version="1.0.0"
+    description="W3C-compliant semantic data management platform with SPARQL, SHACL, and compliance monitoring",
+    version="2.0.0"
 )
+
+# Include enhanced Knowledge Graph router
+app.include_router(kg_router)
 
 # Add CORS middleware
 app.add_middleware(
@@ -84,13 +90,23 @@ async def root():
     """Root endpoint with API information."""
     return {
         "name": "Enterprise Knowledge Graph & Ontology Platform",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "description": "W3C-compliant semantic knowledge graph platform",
+        "technologies": [
+            "RDF 1.1",
+            "SPARQL 1.1",
+            "SHACL",
+            "OWL 2",
+            "Apache Jena Fuseki",
+            "Ontotext GraphDB"
+        ],
         "endpoints": {
             "docs": "/docs",
             "statistics": "/api/v1/statistics",
             "query": "/api/v1/sparql/query",
             "validate": "/api/v1/validate",
-            "compliance": "/api/v1/compliance/report"
+            "compliance": "/api/v1/compliance/report",
+            "knowledge_graph": "/api/v1/kg/*"
         }
     }
 
