@@ -1,396 +1,486 @@
 # Enterprise Data Knowledge Graph & Ontology Platform
 
-A comprehensive ontology-driven data management system for enterprise customer and business data, focusing on compliance, data governance, and semantic interoperability.
+<div align="center">
 
-## 🎯 Project Overview
+![Knowledge Graph](https://img.shields.io/badge/Knowledge%20Graph-W3C%20Compliant-blue)
+![RDF](https://img.shields.io/badge/RDF-1.1-green)
+![SPARQL](https://img.shields.io/badge/SPARQL-1.1-orange)
+![SHACL](https://img.shields.io/badge/SHACL-Validation-red)
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Latest-teal)
 
-This platform demonstrates advanced ontology engineering and semantic web technologies to create a scalable, compliant, and intelligent data management system. It showcases professional skills including:
+</div>
 
-- RDF/OWL ontology design and modeling
-- SPARQL query development
-- SHACL validation for data quality
-- Data governance and compliance by design
-- Knowledge graph construction and management
-- Cross-system data integration
+## 🎯 Overview
 
-## 🏗️ Architecture
+Enterprise-grade semantic knowledge graph platform built with **W3C standards compliance**. This platform provides comprehensive RDF data management, SPARQL querying, SHACL validation, and multi-source data harmonization capabilities.
+
+### Key Features
+
+✅ **W3C Standards Compliance**
+- RDF 1.1 specification
+- SPARQL 1.1 Query Language
+- SHACL (Shapes Constraint Language)
+- OWL 2 RL reasoning
+- RDFS inference
+
+✅ **Triple Store Integration**
+- Apache Jena Fuseki
+- Ontotext GraphDB
+- High-performance semantic storage
+
+✅ **Advanced Query Capabilities**
+- Property paths for transitive queries
+- Federated SPARQL queries
+- Aggregation functions (COUNT, SUM, AVG, MIN, MAX)
+- Full-text search
+- Query result caching
+
+✅ **Data Quality & Validation**
+- SHACL-based validation
+- Quality metrics and reporting
+- Automated validation history
+- HTML/JSON/CSV export formats
+
+✅ **Data Harmonization**
+- Schema mapping and transformation
+- Entity resolution and deduplication
+- Conflict detection and resolution
+- Provenance tracking (W3C PROV)
+
+✅ **Interactive Visualization**
+- D3.js-based knowledge graph visualization
+- Real-time graph exploration
+- Entity search and filtering
+- Drag-and-drop interaction
+
+---
+
+## 🏗 Architecture
 
 ```
-├── ontologies/              # 5 OWL/RDF ontologies + SKOS glossary
-│   ├── customer_ontology.ttl
-│   ├── company_ontology.ttl
-│   ├── compliance_ontology.ttl
-│   ├── lineage_ontology.ttl
-│   └── business_glossary.ttl    # Multi-language (EN/NO)
-├── validation/              # SHACL shapes for data quality
-│   ├── customer_shapes.ttl
-│   └── compliance_shapes.ttl
-├── queries/                 # 60+ SPARQL query examples
-│   ├── customer_queries.sparql
-│   ├── compliance_queries.sparql
-│   └── lineage_queries.sparql
-├── src/
-│   ├── api/                # FastAPI REST server
-│   ├── core/               # Graph manager & validator
-│   ├── ingestion/          # Data generation (real sources!)
-│   ├── compliance/         # GDPR monitoring
-│   └── utils/              # Helper functions
-├── scripts/
-│   ├── generate_data.py    # Generate sample data
-│   └── demo.py             # Full demonstration
-├── data/samples/           # Generated RDF data (~10K triples)
-├── docs/                   # Comprehensive documentation
-│   ├── USE_CASES.md        # Requirements engineering
-├── docker-compose.yml      # Docker setup (Fuseki, PostgreSQL, Redis)
-├── QUICKSTART.md           # 5-minute setup guide
-└── README.md               # This file
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend Dashboard                        │
+│              (React + D3.js + TypeScript)                    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    FastAPI REST API                          │
+│           (W3C-Compliant Knowledge Graph Endpoints)          │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                ┌─────────────┴─────────────┐
+                ▼                           ▼
+┌───────────────────────────┐  ┌───────────────────────────┐
+│  W3C RDF Service          │  │  Advanced SPARQL Service  │
+│  - RDF 1.1                │  │  - Property paths         │
+│  - OWL 2 reasoning        │  │  - Aggregations           │
+│  - RDFS inference         │  │  - Federated queries      │
+│  - SKOS support           │  │  - Full-text search       │
+└───────────────────────────┘  └───────────────────────────┘
+                │                           │
+┌───────────────────────────┐  ┌───────────────────────────┐
+│  SHACL Validator          │  │  Data Harmonization       │
+│  - Constraint checking    │  │  - Schema mapping         │
+│  - Quality metrics        │  │  - Entity resolution      │
+│  - Validation reports     │  │  - Conflict resolution    │
+└───────────────────────────┘  └───────────────────────────┘
+                │                           │
+                └─────────────┬─────────────┘
+                              ▼
+        ┌────────────────────────────────────────┐
+        │          Triple Stores                  │
+        │  ┌──────────────┐  ┌──────────────┐   │
+        │  │ Jena Fuseki  │  │   GraphDB    │   │
+        │  └──────────────┘  └──────────────┘   │
+        └────────────────────────────────────────┘
 ```
 
-## 🚀 Features
+---
 
-### 1. Ontology Management
-- **Customer Domain Ontology**: Models customer profiles, preferences, and relationships
-- **Company Domain Ontology**: Business hierarchies, industry classifications, and market segments
-- **Compliance Ontology**: GDPR, CCPA, and regulatory frameworks
-- **Data Lineage Ontology**: Tracks data provenance and transformations
+## 🚀 Quick Start
 
-### 2. Semantic Technologies
-- **RDF/OWL Models**: Comprehensive semantic data models
-- **SPARQL Endpoint**: Query interface for semantic data
-- **SHACL Validation**: Automated data quality checks
-- **SKOS Taxonomies**: Controlled vocabularies and business glossaries
+### Prerequisites
 
-### 3. Data Governance
-- **Privacy by Design**: Built-in data protection mechanisms
-- **Consent Management**: Track and enforce user consent
-- **Audit Trail**: Complete history of data access and modifications
-- **Compliance Reporting**: Automated regulatory reports
+- Docker & Docker Compose
+- Python 3.10+
+- Node.js 18+
+- Git
 
-### 4. Integration Capabilities
-- **Multi-source Ingestion**: Connect to CRM, ERP, databases
-- **Real-time Synchronization**: Event-driven data updates
-- **API-first Architecture**: RESTful and GraphQL endpoints
-- **Data Transformation**: ETL pipelines with semantic enrichment
+### Installation
 
-## 📋 Prerequisites
-
-- Python 3.9+
-- Node.js 16+ (for dashboard)
-- Apache Jena Fuseki or GraphDB (triplestore)
-- Docker and Docker Compose (optional)
-
-## 🔧 Installation
-
-### 1. Clone the Repository
+1. **Clone the repository**
 ```bash
-git clone <repository-url>
-cd "Enterprise Data Knowledge Graph & Ontology Platform"
+git clone https://github.com/saidulIslam1602/Enterprise-Data-Knowledge-Graph-Ontology-Platform.git
+cd Enterprise-Data-Knowledge-Graph-Ontology-Platform
 ```
 
-### 2. Set Up Python Environment
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment
+2. **Configure environment**
 ```bash
 cp env.example .env
 # Edit .env with your configuration
 ```
 
-### 4. Generate Sample Data (Uses Real Data Sources!)
+3. **Start services with Docker**
 ```bash
+docker-compose up -d
+```
+
+This will start:
+- Apache Jena Fuseki (port 3030)
+- Ontotext GraphDB (port 7200)
+- PostgreSQL (port 5432)
+- Redis (port 6379)
+- FastAPI Backend (port 8000)
+- React Dashboard (port 3000)
+
+4. **Initialize data**
+```bash
+# Generate sample data
 python scripts/generate_data.py
-```
-This script:
-- Generates 150+ realistic customers using Faker
-- Fetches 25+ real companies from **OpenCorporates API**
-- Creates GDPR-compliant consent records
-- Generates transaction history
-- Total: ~10,000+ RDF triples
-
-### 5. Start Triplestore (Optional - using Docker)
-```bash
-docker-compose up -d fuseki
-```
-
-### 6. Run Demonstration
-```bash
-python scripts/demo.py
-```
-See all features in action: SPARQL queries, SHACL validation, compliance monitoring
-
-### 7. Start REST API Server
-```bash
-python src/api/server.py
-```
-API available at: http://localhost:8000/docs (Swagger UI)
-
-### 8. Start React Dashboard (Optional)
-```bash
-cd dashboard
-npm install
-npm run dev
-```
-Dashboard available at: http://localhost:3000
-
-## 📚 Usage Examples
-
-### Generate Data with Real Sources
-```python
-from src.ingestion.data_generator import DataGenerator
-
-generator = DataGenerator(locale='en_US', seed=42)
-
-# Generate 100 customers with realistic data
-graph = generator.generate_customers(count=100)
-
-# Fetch real companies from OpenCorporates API
-companies = generator.fetch_real_companies(count=20, jurisdiction="us")
-graph = generator.companies_to_rdf(companies, graph)
-
-# Generate GDPR compliance data
-graph = generator.generate_compliance_data(graph)
-
-# Save to file
-graph.serialize(destination="data.ttl", format='turtle')
-```
-
-### Query Customer Data with SPARQL
-```python
-from src.core.graph_manager import GraphManager
-
-gm = GraphManager()
-
-# Load ontologies and data
-gm.load_all_ontologies("ontologies/")
-gm.load_ontology("data/samples/generated_data.ttl")
-
-# Execute SPARQL query
-query = """
-PREFIX cus: <http://enterprise.org/ontology/customer#>
-
-SELECT ?email ?lifetimeValue
-WHERE {
-    ?customer a cus:Customer ;
-              cus:email ?email ;
-              cus:lifetimeValue ?lifetimeValue .
-    FILTER(?lifetimeValue > 10000)
-}
-ORDER BY DESC(?lifetimeValue)
-LIMIT 10
-"""
-results = gm.execute_query(query)
-```
-
-### Validate Data Quality
-```python
-from src.core.validator import DataValidator
-
-# Initialize with SHACL shapes
-validator = DataValidator(shapes_dir="validation/")
 
 # Validate data
-validation_report = validator.validate_file("data/samples/generated_data.ttl")
-
-print(f"Valid: {validation_report['conforms']}")
-print(f"Violations: {validation_report['total_violations']}")
-
-# Generate detailed report
-report = validator.generate_report(validation_report, output_format='text')
-print(report)
+python scripts/debug_and_test.py
 ```
 
-### Check Compliance Status
-```python
-from src.compliance.monitor import ComplianceMonitor
-from rdflib import Graph
-
-# Load data
-graph = Graph()
-graph.parse("data/samples/generated_data.ttl")
-
-# Initialize monitor
-monitor = ComplianceMonitor(graph)
-
-# Check GDPR compliance
-status = monitor.check_gdpr_compliance("CUS-000001")
-print(f"GDPR Compliant: {status.is_compliant}")
-print(f"Issues: {status.issues}")
-
-# Get overdue data subject rights requests
-overdue = monitor.get_overdue_dsr_requests()
-print(f"Overdue requests: {len(overdue)}")
-
-# Generate compliance report
-report = monitor.generate_compliance_report()
-print(f"Total consents: {report['consent_summary']['total']}")
-```
-
-### Use REST API
-```bash
-# Start the server
-python src/api/server.py
-
-# Query via API (from another terminal)
-curl -X POST "http://localhost:8000/api/v1/sparql/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "SELECT * WHERE { ?s ?p ?o } LIMIT 10"}'
-
-# Get compliance report
-curl "http://localhost:8000/api/v1/compliance/report"
-
-# Check GDPR compliance for a customer
-curl "http://localhost:8000/api/v1/compliance/gdpr/CUS-000001"
-```
-
-## 🎨 Interactive Dashboard
-
-A modern **React dashboard** provides a beautiful user interface:
-
-### Features
-- **📊 Dashboard Overview** - Real-time statistics and metrics visualization
-- **💻 SPARQL Query Interface** - Interactive editor with syntax highlighting and example queries
-- **🛡️ GDPR Compliance Monitoring** - Track consents, DSR requests, and alerts
-- **✅ Data Quality Metrics** - SHACL validation statistics and 6 quality dimensions
-- **🔍 Ontology Explorer** - Browse OWL classes and properties with search
-
-### Tech Stack
-- React 18 + Vite
-- TailwindCSS for styling
-- TanStack Query for data fetching
-- Recharts for visualizations
-- React Router for navigation
-
-### Quick Start
-```bash
-# Install dependencies
-cd dashboard
-npm install
-
-# Start development server
-npm run dev
-```
-
-Dashboard runs at: http://localhost:3000
-
-## 🌐 Real Data Sources
-
-This platform integrates with **real, free data sources**:
-
-### OpenCorporates API
-- **World's largest open database of companies**
-- Free tier: 500 requests/month
-- Provides real company data: names, registration numbers, addresses
-- Used in `data_generator.py` to fetch authentic company information
-
-### Faker Library
-- Generates realistic synthetic personal data
-- Supports multiple locales (US, UK, Germany, etc.)
-- Creates authentic-looking:
-  - Names, emails, phone numbers
-  - Addresses with real city/state/country data
-  - Transaction histories
-  - Dates and timestamps
-
-### Generated Data Statistics
-Running `python scripts/generate_data.py` creates:
-- **150** Individual Customers
-- **30** Business Customers
-- **25** Real Companies (from OpenCorporates)
-- **400+** Consent Records
-- **2000+** Transactions
-- **Total: ~10,000 RDF triples**
-
-## 🎨 REST API & Documentation
-
-Start the API server:
-```bash
-python src/api/server.py
-```
-
-Access interactive API documentation:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-Available endpoints:
-- `/api/v1/statistics` - Graph statistics
-- `/api/v1/sparql/query` - Execute SPARQL queries
-- `/api/v1/validate` - SHACL validation
-- `/api/v1/compliance/report` - Compliance report
-- `/api/v1/compliance/gdpr/{id}` - GDPR compliance check
-- `/api/v1/compliance/dsr/overdue` - Overdue DSR requests
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-pytest tests/
-
-# Run with coverage
-pytest --cov=src tests/
-
-# Run specific test suite
-pytest tests/test_ontology.py
-```
-
-## 📖 Documentation
-
-Comprehensive documentation is available in the `/docs` directory:
-
-### Quick Start
-- **[QUICKSTART.md](QUICKSTART.md)** - Get running in 5 minutes! ⚡
-
-### Project Documentation
-- **[USE_CASES.md](docs/USE_CASES.md)** - Requirements engineering & use cases
-
-### Technical Documentation
-- **README.md** (this file) - Complete project overview
-- **API Documentation** - http://localhost:8000/docs (when server running)
-- **Ontology Files** - See `ontologies/` directory (5 ontologies)
-- **SPARQL Queries** - See `queries/` directory (60+ queries)
-- **SHACL Shapes** - See `validation/` directory
-
-## 🔐 Security & Compliance
-
-- **GDPR Ready**: Built-in support for data subject rights
-- **Audit Logging**: Complete tracking of all operations
-- **Access Control**: Role-based permissions
-- **Data Encryption**: At-rest and in-transit encryption
-- **Privacy by Design**: Core architectural principle
-
-## 🤝 Contributing
-
-This is a portfolio/demonstration project. For improvements or suggestions:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 👤 Author
-
-Developed as a professional demonstration project showcasing:
-- Advanced semantic web technologies
-- Enterprise data architecture
-- Compliance and governance expertise
-- Cross-functional technical skills
-
-## 🙏 Acknowledgments
-
-- W3C for Semantic Web standards
-- Apache Jena project
-- RDFLib community
-- Protégé ontology editor
-
+5. **Access the platform**
+- Dashboard: http://localhost:3000
+- API Documentation: http://localhost:8000/docs
+- Jena Fuseki: http://localhost:3030
+- GraphDB: http://localhost:7200
 
 ---
 
-**Note**: This project demonstrates proficiency in ontology engineering, semantic technologies, data governance, and enterprise architecture - essential skills for data-driven organizations.
+## 📚 Usage Examples
+
+### W3C-Compliant RDF Operations
+
+```python
+from src.core.w3c_rdf_service import W3CCompliantRDFService
+
+# Initialize service
+rdf_service = W3CCompliantRDFService(base_uri="https://enterprise.example.com/")
+
+# Create ontology metadata (Dublin Core)
+rdf_service.create_ontology_metadata(
+    ontology_uri="https://enterprise.example.com/ontology/customer",
+    title="Customer Ontology",
+    description="Enterprise customer data ontology",
+    version="1.0.0",
+    creators=["Enterprise Team"]
+)
+
+# Define OWL class
+rdf_service.define_class(
+    class_uri="https://enterprise.example.com/ontology/Customer",
+    label="Customer",
+    comment="Represents a business customer",
+    parent_class="http://xmlns.com/foaf/0.1/Agent"
+)
+
+# Define property
+rdf_service.define_property(
+    property_uri="https://enterprise.example.com/ontology/hasEmail",
+    label="has email",
+    comment="Customer's email address",
+    property_type="DatatypeProperty",
+    domain="https://enterprise.example.com/ontology/Customer",
+    range_="http://www.w3.org/2001/XMLSchema#string"
+)
+
+# Apply RDFS reasoning
+rdf_service.apply_rdfs_reasoning()
+
+# Apply OWL 2 RL reasoning
+rdf_service.apply_owl_reasoning(profile="OWL_RL")
+
+# Validate W3C compliance
+report = rdf_service.validate_w3c_compliance()
+print(report)
+```
+
+### Advanced SPARQL Queries
+
+```python
+from src.core.sparql_service import AdvancedSPARQLService
+from rdflib import Graph
+
+# Initialize
+graph = Graph()
+graph.parse("data/samples/generated_data.ttl", format="turtle")
+sparql_service = AdvancedSPARQLService(graph)
+
+# Find paths between resources
+paths = sparql_service.find_paths(
+    start_uri="https://enterprise.example.com/customer/123",
+    end_uri="https://enterprise.example.com/company/456",
+    max_length=5
+)
+
+# Find connected resources (transitive)
+connected = sparql_service.find_connected_resources(
+    resource_uri="https://enterprise.example.com/customer/123",
+    depth=2
+)
+
+# Aggregation query
+stats = sparql_service.aggregate_statistics(
+    subject_class="https://enterprise.example.com/ontology/Customer",
+    property_path="https://enterprise.example.com/ontology/hasOrderValue",
+    aggregation="SUM"
+)
+
+# Full-text search
+results = sparql_service.search_by_text(
+    search_text="john doe",
+    property_paths=[
+        "http://www.w3.org/2000/01/rdf-schema#label",
+        "http://xmlns.com/foaf/0.1/name"
+    ]
+)
+
+# Get query statistics
+query_stats = sparql_service.get_query_statistics()
+print(f"Average query time: {query_stats['avg_execution_time_ms']}ms")
+```
+
+### SHACL Validation
+
+```python
+from src.core.shacl_validator import SHACLValidationService
+from rdflib import Graph
+
+# Initialize
+validator = SHACLValidationService()
+
+# Load data and shapes
+data_graph = Graph()
+data_graph.parse("data/samples/generated_data.ttl", format="turtle")
+
+shapes_graph = Graph()
+shapes_graph.parse("validation/customer_shapes.ttl", format="turtle")
+
+# Validate
+report = validator.validate(
+    data_graph=data_graph,
+    shapes_graph=shapes_graph,
+    inference="rdfs",
+    advanced=True
+)
+
+print(f"Conforms: {report['conforms']}")
+print(f"Violations: {report['violation_count']}")
+print(f"Warnings: {report['warning_count']}")
+
+# Generate quality report
+quality_report = validator.create_quality_report(report)
+print(f"Quality Score: {quality_report['quality_score']}/100")
+
+# Export report
+validator.export_validation_report(report, "validation_report.html", format="html")
+```
+
+### Data Harmonization
+
+```python
+from src.core.data_harmonization import DataHarmonizationService
+from rdflib import Graph
+
+# Initialize
+harmonization = DataHarmonizationService("https://enterprise.example.com/harmonized/")
+
+# Add mapping rules
+harmonization.add_mapping_rule(
+    source_ontology="external_system_1",
+    source_class="http://external.com/Person",
+    target_class="https://enterprise.example.com/ontology/Customer",
+    property_mappings={
+        "http://external.com/fullName": "http://xmlns.com/foaf/0.1/name",
+        "http://external.com/emailAddr": "https://enterprise.example.com/ontology/hasEmail"
+    }
+)
+
+# Harmonize data
+source_graph = Graph()
+source_graph.parse("external_data.ttl", format="turtle")
+
+harmonized_graph = harmonization.harmonize_graph(
+    source_graph=source_graph,
+    source_ontology_id="external_system_1",
+    provenance_info={
+        "source": "External System 1",
+        "import_date": "2025-10-17"
+    }
+)
+
+# Detect conflicts
+conflicts = harmonization.detect_conflicts()
+print(f"Conflicts found: {len(conflicts)}")
+
+# Resolve conflicts
+resolved = harmonization.resolve_conflicts(strategy="most_recent")
+print(f"Resolved {resolved} conflicts")
+
+# Validate quality
+quality = harmonization.validate_data_quality()
+print(f"Quality score: {quality['quality_score']}")
+
+# Export harmonized data
+harmonization.export_harmonized_data("harmonized_output.ttl", format="turtle")
+```
+
+### Triple Store Operations
+
+```python
+from src.triplestore.fuseki_client import get_fuseki_client
+
+# Get Fuseki client
+client = get_fuseki_client(
+    fuseki_url="http://localhost:3030",
+    dataset="enterprise_kg"
+)
+
+# Create dataset
+client.create_dataset()
+
+# Upload ontology
+client.upload_ontology("ontologies/customer_ontology.ttl")
+
+# Execute SPARQL query
+query = """
+PREFIX ns: <https://enterprise.example.com/ontology/>
+SELECT ?customer ?name WHERE {
+    ?customer a ns:Customer ;
+              ns:hasName ?name .
+}
+LIMIT 10
+"""
+results = client.sparql_query(query)
+
+# Get statistics
+stats = client.get_statistics()
+print(f"Total triples: {stats['triple_count']}")
+
+# Health check
+is_healthy = client.health_check()
+print(f"Fuseki healthy: {is_healthy}")
+```
+
+---
+
+## 🔌 API Endpoints
+
+### W3C RDF Service
+- `GET /api/v1/kg/ontology/metadata` - Get ontology metadata
+- `POST /api/v1/kg/ontology/create-class` - Create OWL class
+- `POST /api/v1/kg/ontology/create-property` - Create OWL property
+- `POST /api/v1/kg/ontology/reasoning/rdfs` - Apply RDFS reasoning
+- `POST /api/v1/kg/ontology/reasoning/owl` - Apply OWL reasoning
+- `GET /api/v1/kg/ontology/class-hierarchy` - Get class hierarchy
+- `GET /api/v1/kg/ontology/validate-w3c` - Validate W3C compliance
+
+### Advanced SPARQL
+- `POST /api/v1/kg/sparql/query` - Execute SPARQL query
+- `GET /api/v1/kg/sparql/find-paths` - Find paths between resources
+- `GET /api/v1/kg/sparql/connected-resources` - Get connected resources
+- `GET /api/v1/kg/sparql/aggregate` - Aggregation queries
+- `POST /api/v1/kg/sparql/search` - Full-text search
+- `GET /api/v1/kg/sparql/class-instances` - Count class instances
+- `GET /api/v1/kg/sparql/property-usage` - Property usage statistics
+
+### SHACL Validation
+- `POST /api/v1/kg/validation/validate-file` - Validate RDF file
+- `POST /api/v1/kg/validation/quality-report` - Generate quality report
+- `GET /api/v1/kg/validation/history` - Get validation history
+
+### Data Harmonization
+- `POST /api/v1/kg/harmonization/add-mapping` - Add mapping rule
+- `POST /api/v1/kg/harmonization/harmonize` - Harmonize data
+- `GET /api/v1/kg/harmonization/conflicts` - Detect conflicts
+- `POST /api/v1/kg/harmonization/resolve-conflicts` - Resolve conflicts
+- `GET /api/v1/kg/harmonization/quality` - Validate quality
+- `GET /api/v1/kg/harmonization/statistics` - Get statistics
+
+### Triple Store
+- `GET /api/v1/kg/triplestore/health` - Health check
+- `GET /api/v1/kg/triplestore/statistics` - Get statistics
+- `GET /api/v1/kg/triplestore/datasets` - List datasets
+
+---
+
+## 🛠 Technology Stack
+
+### Backend
+- **Python 3.10+** - Core language
+- **FastAPI** - Web framework
+- **RDFLib** - RDF manipulation
+- **PySHACL** - SHACL validation
+- **SPARQLWrapper** - SPARQL client
+- **OWL-RL** - OWL reasoning
+
+### Triple Stores
+- **Apache Jena Fuseki** - Primary triple store
+- **Ontotext GraphDB** - Alternative triple store
+
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **D3.js** - Graph visualization
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
+
+### Infrastructure
+- **Docker & Docker Compose** - Containerization
+- **PostgreSQL** - Metadata storage
+- **Redis** - Caching layer
+- **Nginx** - Web server
+
+---
+
+## 📊 Standards Compliance
+
+This platform is compliant with the following W3C standards:
+
+- ✅ **RDF 1.1** - Resource Description Framework
+- ✅ **RDFS** - RDF Schema
+- ✅ **OWL 2** - Web Ontology Language
+- ✅ **SPARQL 1.1** - Query Language
+- ✅ **SHACL** - Shapes Constraint Language
+- ✅ **SKOS** - Simple Knowledge Organization System
+- ✅ **Dublin Core** - Metadata terms
+- ✅ **PROV** - Provenance Ontology
+- ✅ **FOAF** - Friend of a Friend
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 📧 Contact
+
+For questions or support, please open an issue on GitHub.
+
+---
+
+## 🙏 Acknowledgments
+
+- W3C for semantic web standards
+- Apache Jena community
+- Ontotext for GraphDB
+- RDFLib developers
+
+---
+
+<div align="center">
+Built with ❤️ for the semantic web community
+</div>
