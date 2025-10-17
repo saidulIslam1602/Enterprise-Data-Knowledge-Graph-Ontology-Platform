@@ -454,24 +454,6 @@ This platform is compliant with the following W3C standards:
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-## 📧 Contact
-
-For questions or support, please open an issue on GitHub.
-
----
-
 ## 🙏 Acknowledgments
 
 - W3C for semantic web standards
