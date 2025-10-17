@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: knowledge-graph
+data:
+  # Application Environment
+  ENVIRONMENT: "production"
+  DEBUG: "False"
+  
+  # Base URIs
+  BASE_URI: "https://enterprise-kg.com/kg/"
+  ONTOLOGY_NAMESPACE: "https://enterprise-kg.com/kg/ontology/"
+  DATA_NAMESPACE: "https://enterprise-kg.com/kg/data/"
+  HARMONIZATION_NAMESPACE: "https://enterprise-kg.com/kg/harmonized/"
+  
+  # Triple Store Configuration
+  FUSEKI_URL: "http://fuseki-service:3030"
+  FUSEKI_DATASET: "enterprise_kg"
+  GRAPHDB_URL: "http://graphdb-service:7200"
+  GRAPHDB_REPOSITORY: "enterprise_kg"
+  
+  # Database Configuration
+  DATABASE_URL: "postgresql://ontology_user:$(POSTGRES_PASSWORD)@postgres-service:5432/ontology_db"
+  
+  # Redis Configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  
+  # API Configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  API_WORKERS: "4"
+  
+  # European Standards Integration
+  ERA_ENDPOINT: "https://data-interop.era.europa.eu/sparql"
+  RAILML_SCHEMA_VERSION: "3.2"

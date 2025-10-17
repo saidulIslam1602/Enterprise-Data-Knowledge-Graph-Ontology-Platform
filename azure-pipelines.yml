@@ -1,0 +1,327 @@
+# Azure Pipelines CI/CD for Enterprise Knowledge Graph Platform
+# Implements continuous integration, testing, and deployment to Kubernetes
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+  paths:
+    exclude:
+      - README.md
+      - docs/**
+      - '**/*.md'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  # Container Registry
+  dockerRegistryServiceConnection: 'azure-container-registry-connection'
+  containerRegistry: 'yourregistry.azurecr.io'
+  imageRepositoryAPI: 'enterprise-kg-api'
+  imageRepositoryDashboard: 'enterprise-kg-dashboard'
+  
+  # Kubernetes
+  kubernetesServiceConnection: 'kubernetes-cluster-connection'
+  namespace: 'knowledge-graph'
+  
+  # Build Configuration
+  tag: '$(Build.BuildId)'
+  vmImageName: 'ubuntu-latest'
+  pythonVersion: '3.11'
+  nodeVersion: '18.x'
+
+pool:
+  vmImage: $(vmImageName)
+
+stages:
+#==============================================================================
+# STAGE 1: Code Quality & Security
+#==============================================================================
+- stage: CodeQuality
+  displayName: 'Code Quality & Security Checks'
+  jobs:
+  - job: Lint
+    displayName: 'Lint and Static Analysis'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint black mypy
+      displayName: 'Install linting tools'
+
+    - script: |
+        # Check code formatting
+        black --check src/
+        
+        # Run flake8
+        flake8 src/ --max-line-length=120 --exclude=__pycache__
+        
+        # Run pylint
+        pylint src/ --disable=C0111,R0903
+        
+        # Run mypy type checking
+        mypy src/ --ignore-missing-imports
+      displayName: 'Run Python linters'
+
+  - job: SecurityScan
+    displayName: 'Security Vulnerability Scan'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+
+    - script: |
+        pip install safety bandit
+        
+        # Check for known security vulnerabilities in dependencies
+        safety check --file requirements.txt
+        
+        # Security linter for Python code
+        bandit -r src/ -f json -o bandit-report.json
+      displayName: 'Security scanning'
+      continueOnError: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: 'bandit-report.json'
+        artifactName: 'security-scan-results'
+
+#==============================================================================
+# STAGE 2: Build and Test
+#==============================================================================
+- stage: Build
+  displayName: 'Build and Test'
+  dependsOn: CodeQuality
+  jobs:
+  - job: TestBackend
+    displayName: 'Test Python Backend'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio pytest-mock
+      displayName: 'Install dependencies'
+
+    - script: |
+        # Run unit tests with coverage
+        pytest tests/ \
+          --cov=src \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term \
+          --junitxml=junit/test-results.xml \
+          --verbose
+      displayName: 'Run pytest with coverage'
+
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        testRunTitle: 'Python Backend Tests'
+        failTaskOnFailedTests: true
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+        reportDirectory: '$(System.DefaultWorkingDirectory)/htmlcov'
+
+  - job: TestFrontend
+    displayName: 'Test React Frontend'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Use Node.js $(nodeVersion)'
+
+    - script: |
+        cd dashboard
+        npm ci
+      displayName: 'Install npm dependencies'
+
+    - script: |
+        cd dashboard
+        npm run lint
+      displayName: 'Run ESLint'
+
+    - script: |
+        cd dashboard
+        npm test -- --coverage --watchAll=false
+      displayName: 'Run Jest tests'
+      continueOnError: true
+
+  - job: BuildDockerImages
+    displayName: 'Build Docker Images'
+    dependsOn:
+      - TestBackend
+      - TestFrontend
+    steps:
+    - task: Docker@2
+      displayName: 'Build API Docker image'
+      inputs:
+        command: build
+        repository: $(containerRegistry)/$(imageRepositoryAPI)
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Build Dashboard Docker image'
+      inputs:
+        command: build
+        repository: $(containerRegistry)/$(imageRepositoryDashboard)
+        dockerfile: '$(Build.SourcesDirectory)/dashboard/Dockerfile'
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Push API Docker image'
+      inputs:
+        command: push
+        repository: $(containerRegistry)/$(imageRepositoryAPI)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Push Dashboard Docker image'
+      inputs:
+        command: push
+        repository: $(containerRegistry)/$(imageRepositoryDashboard)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+#==============================================================================
+# STAGE 3: Deploy to Development
+#==============================================================================
+- stage: DeployDev
+  displayName: 'Deploy to Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployToDev
+    displayName: 'Deploy to Dev K8s Cluster'
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: 'Create/Update namespace'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)-dev'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/namespace.yaml
+
+          - task: KubernetesManifest@0
+            displayName: 'Deploy ConfigMaps and Secrets'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)-dev'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/configmap.yaml
+                $(Pipeline.Workspace)/k8s/secrets.yaml
+
+          - task: KubernetesManifest@0
+            displayName: 'Deploy all services'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)-dev'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/*.yaml
+              containers: |
+                $(containerRegistry)/$(imageRepositoryAPI):$(tag)
+                $(containerRegistry)/$(imageRepositoryDashboard):$(tag)
+
+#==============================================================================
+# STAGE 4: Deploy to Production
+#==============================================================================
+- stage: DeployProd
+  displayName: 'Deploy to Production'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployToProd
+    displayName: 'Deploy to Production K8s Cluster'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: 'Create/Update namespace'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/namespace.yaml
+
+          - task: KubernetesManifest@0
+            displayName: 'Deploy ConfigMaps and Secrets'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/configmap.yaml
+                $(Pipeline.Workspace)/k8s/secrets.yaml
+
+          - task: KubernetesManifest@0
+            displayName: 'Deploy all services with rolling update'
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+              namespace: '$(namespace)'
+              strategy: 'canary'
+              percentage: '25'
+              manifests: |
+                $(Pipeline.Workspace)/k8s/*.yaml
+              containers: |
+                $(containerRegistry)/$(imageRepositoryAPI):$(tag)
+                $(containerRegistry)/$(imageRepositoryDashboard):$(tag)
+
+          - script: |
+              # Wait for deployment rollout
+              kubectl rollout status deployment/api -n $(namespace) --timeout=10m
+              kubectl rollout status deployment/dashboard -n $(namespace) --timeout=10m
+              kubectl rollout status deployment/fuseki -n $(namespace) --timeout=10m
+            displayName: 'Verify deployment rollout'
+
+  - job: SmokeTests
+    displayName: 'Production Smoke Tests'
+    dependsOn: DeployToProd
+    steps:
+    - script: |
+        # Health check endpoints
+        curl -f https://api.kg.your-domain.com/ || exit 1
+        curl -f https://kg.your-domain.com/ || exit 1
+        curl -f https://fuseki.kg.your-domain.com/$/ping || exit 1
+      displayName: 'Run smoke tests'

@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fuseki
+  namespace: knowledge-graph
+  labels:
+    app: fuseki
+    component: triplestore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fuseki
+  template:
+    metadata:
+      labels:
+        app: fuseki
+        component: triplestore
+    spec:
+      containers:
+      - name: fuseki
+        image: stain/jena-fuseki:latest
+        ports:
+        - containerPort: 3030
+          name: http
+          protocol: TCP
+        env:
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FUSEKI_PASSWORD
+        - name: JVM_ARGS
+          value: "-Xmx4g -XX:+UseG1GC"
+        volumeMounts:
+        - name: fuseki-data
+          mountPath: /fuseki
+        - name: ontologies
+          mountPath: /ontologies
+          readOnly: true
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /$/ping
+            port: 3030
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /$/ping
+            port: 3030
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: fuseki-data
+        persistentVolumeClaim:
+          claimName: fuseki-pvc
+      - name: ontologies
+        configMap:
+          name: ontologies-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fuseki-service
+  namespace: knowledge-graph
+  labels:
+    app: fuseki
+spec:
+  selector:
+    app: fuseki
+  ports:
+  - protocol: TCP
+    port: 3030
+    targetPort: 3030
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fuseki-pvc
+  namespace: knowledge-graph
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard

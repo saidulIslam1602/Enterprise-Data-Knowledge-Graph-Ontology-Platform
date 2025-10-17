@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Apache Jena Fuseki Triplestore
   fuseki:
@@ -17,19 +15,20 @@ services:
     networks:
       - ontology_network
 
-  # Ontotext GraphDB (Alternative Triple Store)
-  graphdb:
-    image: ontotext/graphdb:10.7.0
-    container_name: enterprise_graphdb
-    ports:
-      - "7200:7200"
-    environment:
-      - GDB_HEAP_SIZE=2g
-    volumes:
-      - graphdb_data:/opt/graphdb/home
-      - ./ontologies:/root/graphdb-import:ro
-    networks:
-      - ontology_network
+  # Ontotext GraphDB (Alternative Triple Store) - Commented out for now
+  # Uncomment if you want to use GraphDB instead of or alongside Fuseki
+  # graphdb:
+  #   image: ontotext/graphdb:10.7.0
+  #   container_name: enterprise_graphdb
+  #   ports:
+  #     - "7200:7200"
+  #   environment:
+  #     - GDB_HEAP_SIZE=2g
+  #   volumes:
+  #     - graphdb_data:/opt/graphdb/home
+  #     - ./ontologies:/root/graphdb-import:ro
+  #   networks:
+  #     - ontology_network
 
   # PostgreSQL for metadata and audit logs
   postgres:
@@ -51,7 +50,7 @@ services:
     image: redis:7-alpine
     container_name: enterprise_redis
     ports:
-      - "6379:6379"
+      - "6380:6379"  # Changed to 6380 to avoid conflict with local Redis
     volumes:
       - redis_data:/data
     networks:
@@ -96,7 +95,7 @@ services:
 
 volumes:
   fuseki_data:
-  graphdb_data:
+  # graphdb_data:
   postgres_data:
   redis_data:
 
